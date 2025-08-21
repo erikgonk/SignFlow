@@ -473,12 +473,6 @@ const SignatureOverlay = ({
             <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary-500 border border-white rounded-full shadow-sm"></div>
             <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-primary-500 border border-white rounded-full shadow-sm"></div>
             <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-primary-500 border border-white rounded-full shadow-sm"></div>
-            
-            {/* Edge indicators - visible on hover */}
-            <div className="absolute -top-1 left-4 right-4 h-2 bg-primary-400 opacity-40 transition-opacity rounded-full"></div>
-            <div className="absolute -bottom-1 left-4 right-4 h-2 bg-primary-400 opacity-40 transition-opacity rounded-full"></div>
-            <div className="absolute -left-1 top-4 bottom-4 w-2 bg-primary-400 opacity-40 transition-opacity rounded-full"></div>
-            <div className="absolute -right-1 top-4 bottom-4 w-2 bg-primary-400 opacity-40 transition-opacity rounded-full"></div>
           </div>
           
           {/* Hover instruction tooltip */}

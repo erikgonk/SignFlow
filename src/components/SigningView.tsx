@@ -183,14 +183,11 @@ const SigningView = () => {
       </div>
 
       {/* Signature Toolbar */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="fixed bottom-0 left-0 right-0 z-50"
-      >
-        <SignatureToolbar />
-      </motion.div>
+      <div className="fixed bottom-6 left-0 right-0 z-50 pointer-events-none">
+        <div className="pointer-events-auto">
+          <SignatureToolbar />
+        </div>
+      </div>
 
       {/* Signature Creation Modal */}
       <SignatureCreationModal
