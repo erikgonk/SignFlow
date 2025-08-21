@@ -3,17 +3,24 @@ import { ArrowLeft, Download } from 'lucide-react';
 import useSignFlowStore from '../store/useSignFlowStore';
 import PDFViewer from './PDFViewer';
 import SignatureToolbar from './SignatureToolbar';
+import SignatureCreationModal from './SignatureCreationModal';
 
 const SigningView = () => {
   const {
     pdfFile,
     signatures,
-    setCurrentView,
-    addSignature,
-    activeSignatureType,
+    showSignaturePopup,
+    popupPosition,
     isPlacingSignature,
+    activeSignatureType,
     drawnSignature,
-    uploadedSignature
+    typedSignature,
+    uploadedSignature,
+    setCurrentView,
+    setShowSignaturePopup,
+    setPopupPosition,
+    setIsPlacingSignature,
+    addSignature,
   } = useSignFlowStore();
 
   const handleBackToLanding = () => {
@@ -24,32 +31,61 @@ const SigningView = () => {
     setCurrentView('preview');
   };
 
-  const handlePageClick = (x: number, y: number, pageNumber: number) => {
-    if (!isPlacingSignature) return;
+  const handlePageClick = (x: number, y: number, pageNumber: number, event?: React.MouseEvent) => {
+    // Check if click is on an existing signature
+    const target = event?.target as HTMLElement;
+    const isClickingOnSignature = target?.closest('[data-signature-overlay]') !== null;
     
-    let signatureData = '';
-    
-    switch (activeSignatureType) {
-      case 'draw':
-      case 'type':
-        signatureData = drawnSignature || '';
-        break;
-      case 'upload':
-        signatureData = uploadedSignature || '';
-        break;
+    if (isClickingOnSignature) {
+      // Don't show popup if clicking on existing signature
+      return;
     }
-    
-    if (!signatureData) return;
-    
-    addSignature({
-      type: activeSignatureType,
-      x: x - 0.1, // Offset to center the signature
-      y: y - 0.05,
-      width: 0.2, // Default width as proportion of page
-      height: 0.1, // Default height as proportion of page
-      data: signatureData,
-      pageNumber,
+
+    // Check if we're in placement mode (signature created from toolbar)
+    if (isPlacingSignature) {
+      let signatureData = '';
+      
+      // Get the appropriate signature data based on the active type
+      if (activeSignatureType === 'draw' || activeSignatureType === 'type') {
+        signatureData = drawnSignature || '';
+      } else if (activeSignatureType === 'upload') {
+        signatureData = uploadedSignature || '';
+      }
+      
+      if (signatureData) {
+        // Place the signature at the clicked position
+        addSignature({
+          type: activeSignatureType,
+          x: x - 0.1,
+          y: y - 0.05,
+          width: 0.2,
+          height: 0.1,
+          data: signatureData,
+          pageNumber: pageNumber,
+        });
+        
+        // Exit placement mode
+        setIsPlacingSignature(false);
+        return;
+      }
+    }
+
+    // Normal mode: Set popup position and show it
+    setPopupPosition({ 
+      x, 
+      y, 
+      pageNumber 
     });
+    setShowSignaturePopup(true);
+  };
+
+  const handleClosePopup = () => {
+    setShowSignaturePopup(false);
+    setPopupPosition(null);
+    // Reset placement mode when closing popup
+    if (isPlacingSignature) {
+      setIsPlacingSignature(false);
+    }
   };
 
   const canProceed = signatures.length > 0;
@@ -104,7 +140,7 @@ const SigningView = () => {
       </motion.div>
 
       {/* Main Content */}
-      <div className="flex-1">
+      <div className="flex-1 pb-32">
         <div className="max-w-6xl mx-auto p-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -118,22 +154,21 @@ const SigningView = () => {
                 <div className="flex-shrink-0 w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
                   1
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-1">
-                    {isPlacingSignature 
-                      ? 'Click anywhere on the PDF to place your signature'
-                      : signatures.length > 0
-                      ? 'Click signatures to move, resize, or delete them'
-                      : 'Choose a signature type and create your signature'
-                    }
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {isPlacingSignature
-                      ? 'Your signature will be placed where you click. You can move, resize, or delete it after placement.'
-                      : signatures.length > 0
-                      ? 'Click on any signature to select it. Drag to move, use the resize handle in the bottom-right corner, or click the × to delete.'
-                      : 'Select Draw to draw with your mouse, Type to create a text signature, or Upload to use an image.'
-                    }
+                <div>                <h3 className="font-medium text-gray-900 mb-1">
+                  {isPlacingSignature
+                    ? 'Click on the PDF to place your signature'
+                    : signatures.length > 0
+                    ? 'Manage your signatures'
+                    : 'Add your signature to the document'
+                  }
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {isPlacingSignature
+                    ? 'Click anywhere on the document to place your prepared signature at that location.'
+                    : signatures.length > 0
+                    ? 'Click on any signature to select it. Drag to move, use the resize handle in the bottom-right corner, or click the × to delete. Use the toolbar below to add more signatures.'
+                    : 'Use the toolbar buttons below to create your signature, or click directly on the document to open the signature creation popup.'
+                  }
                   </p>
                 </div>
               </div>
@@ -152,10 +187,17 @@ const SigningView = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="fixed bottom-0 left-0 right-0"
+        className="fixed bottom-0 left-0 right-0 z-50"
       >
         <SignatureToolbar />
       </motion.div>
+
+      {/* Signature Creation Modal */}
+      <SignatureCreationModal
+        isOpen={showSignaturePopup}
+        onClose={handleClosePopup}
+        clickPosition={popupPosition}
+      />
     </div>
   );
 };

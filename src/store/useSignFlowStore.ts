@@ -32,12 +32,18 @@ export interface SignFlowState {
   isPlacingSignature: boolean;
   selectedSignature: string | null;
   
+  // Signature popup
+  showSignaturePopup: boolean;
+  popupPosition: { x: number; y: number; pageNumber: number } | null;
+  
   addSignature: (signature: Omit<Signature, 'id'>) => void;
   updateSignature: (id: string, updates: Partial<Signature>) => void;
   removeSignature: (id: string) => void;
   setActiveSignatureType: (type: SignatureType) => void;
   setIsPlacingSignature: (placing: boolean) => void;
   setSelectedSignature: (id: string | null) => void;
+  setShowSignaturePopup: (show: boolean) => void;
+  setPopupPosition: (position: { x: number; y: number; pageNumber: number } | null) => void;
   
   // Signature input data
   drawnSignature: string | null;
@@ -62,6 +68,8 @@ const useSignFlowStore = create<SignFlowState>((set) => ({
   activeSignatureType: 'draw',
   isPlacingSignature: false,
   selectedSignature: null,
+  showSignaturePopup: false,
+  popupPosition: null,
   drawnSignature: null,
   typedSignature: '',
   uploadedSignature: null,
@@ -154,6 +162,8 @@ const useSignFlowStore = create<SignFlowState>((set) => ({
   setActiveSignatureType: (type) => set({ activeSignatureType: type }),
   setIsPlacingSignature: (placing) => set({ isPlacingSignature: placing }),
   setSelectedSignature: (id) => set({ selectedSignature: id }),
+  setShowSignaturePopup: (show) => set({ showSignaturePopup: show }),
+  setPopupPosition: (position) => set({ popupPosition: position }),
   
   setDrawnSignature: (data) => set({ drawnSignature: data }),
   setTypedSignature: (text) => set({ typedSignature: text }),
@@ -168,6 +178,8 @@ const useSignFlowStore = create<SignFlowState>((set) => ({
     activeSignatureType: 'draw',
     isPlacingSignature: false,
     selectedSignature: null,
+    showSignaturePopup: false,
+    popupPosition: null,
     drawnSignature: null,
     typedSignature: '',
     uploadedSignature: null,

@@ -5,7 +5,7 @@ import type { Signature } from '../store/useSignFlowStore';
 import PDFErrorBoundary from './PDFErrorBoundary';
 
 interface PDFViewerProps {
-  onPageClick: (x: number, y: number, pageNumber: number) => void;
+  onPageClick: (x: number, y: number, pageNumber: number, event?: React.MouseEvent) => void;
   isPreviewMode?: boolean;
 }
 
@@ -33,7 +33,7 @@ const PDFViewer = ({ onPageClick, isPreviewMode = false }: PDFViewerProps) => {
     const relativeX = x / rect.width;
     const relativeY = y / rect.height;
     
-    onPageClick(relativeX, relativeY, pageNumber);
+    onPageClick(relativeX, relativeY, pageNumber, event);
   }, [onPageClick]);
 
   const handleSignatureMove = useCallback((sigId: string, newX: number, newY: number) => {
@@ -404,20 +404,17 @@ const SignatureOverlay = ({
     width: `${signature.width * 100}%`,
     height: `${signature.height * 100}%`,
     borderRadius: '4px',
-    zIndex: isSelected ? 10 : 5,
+    zIndex: isSelected ? 3 : isHovered ? 2 : 1,
     minWidth: '20px',
     minHeight: '10px',
     transform: isPreviewMode 
       ? 'scale(1)' 
       : isSelected 
       ? 'scale(1.02)' 
+      : isHovered
+      ? 'scale(1.01)'
       : 'scale(1)',
-    transition: isDragging || isResizing ? 'none' : 'transform 0.2s ease, border-color 0.2s ease',
-    boxShadow: isPreviewMode 
-      ? 'none' 
-      : isSelected 
-      ? '0 4px 12px rgba(14, 165, 233, 0.15)' 
-      : 'none',
+    transition: isDragging || isResizing ? 'none' : 'all 0.2s ease',
     cursor: isPreviewMode 
       ? 'default' 
       : isDragging 
@@ -434,7 +431,14 @@ const SignatureOverlay = ({
       onMouseMove={isPreviewMode ? (isHovered ? handleMouseMove : undefined) : handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="group"
+      className={`group border-2 transition-all duration-200 ${
+        isSelected 
+          ? 'border-primary-500 shadow-lg' 
+          : isHovered 
+          ? 'border-primary-300 shadow-md' 
+          : 'border-gray-300 border-opacity-60'
+      }`}
+      data-signature-overlay="true"
     >
       <img 
         src={signature.data} 
@@ -443,7 +447,8 @@ const SignatureOverlay = ({
         draggable={false}
       />
       
-      {(isPreviewMode ? isHovered : isSelected) && (
+      {/* Show controls only on hover in signing mode, or when hovered in preview mode */}
+      {(isPreviewMode ? isHovered : (isHovered || isSelected)) && (
         <>
           {/* Delete button */}
           <button
@@ -451,14 +456,18 @@ const SignatureOverlay = ({
               e.stopPropagation();
               onDelete();
             }}
-            className="absolute -top-3 -right-3 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 flex items-center justify-center shadow-lg transition-colors z-30"
+            className="absolute -top-3 -right-3 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 flex items-center justify-center shadow-lg transition-all duration-200 z-10"
             title="Delete signature"
+            style={{ opacity: isHovered || isSelected ? 1 : 0 }}
           >
             ×
           </button>
           
           {/* Visual resize indicators */}
-          <div className="absolute inset-0 pointer-events-none">
+          <div 
+            className="absolute inset-0 pointer-events-none transition-opacity duration-200"
+            style={{ opacity: isHovered || isSelected ? 1 : 0 }}
+          >
             {/* Corner indicators */}
             <div className="absolute -top-1 -left-1 w-2 h-2 bg-primary-500 border border-white rounded-full shadow-sm"></div>
             <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary-500 border border-white rounded-full shadow-sm"></div>
@@ -472,32 +481,32 @@ const SignatureOverlay = ({
             <div className="absolute -right-1 top-4 bottom-4 w-2 bg-primary-400 opacity-40 transition-opacity rounded-full"></div>
           </div>
           
-          {/* Page transition hints - only in edit mode */}
+          {/* Hover instruction tooltip */}
+          {isHovered && !isSelected && (
+            <div 
+              className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap transition-opacity duration-200 z-20"
+              style={{ opacity: isHovered ? 1 : 0 }}
+            >
+              Click to edit • Drag to move • Resize from corners
+            </div>
+          )}
+          
+          {/* Page transition hints - only in edit mode when dragging */}
           {!isPreviewMode && isDragging && totalPages > 1 && (
             <>
               {pageNumber > 1 && (
-                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
                   ↑ Drag up to move to page {pageNumber - 1}
                 </div>
               )}
               {pageNumber < totalPages && (
-                <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
                   ↓ Drag down to move to page {pageNumber + 1}
                 </div>
               )}
             </>
           )}
         </>
-      )}
-      
-      {/* Hover effect when not selected - only in edit mode */}
-      {!isPreviewMode && !isSelected && (
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-          <div className="absolute inset-0 border-2 border-primary-400 border-dashed rounded bg-primary-50 bg-opacity-20"></div>
-          <div className="absolute -top-6 left-0 bg-primary-500 text-white text-xs px-2 py-1 rounded shadow-md whitespace-nowrap">
-            Click to select
-          </div>
-        </div>
       )}
     </div>
   );
