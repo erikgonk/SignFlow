@@ -397,6 +397,33 @@ const SignatureOverlay = ({
     };
   }, [isDragging, isResizing, isSelected, handleGlobalMouseMove, handleGlobalMouseUp, onDelete]);
 
+  // In preview mode, signatures are static and not interactive
+  if (isPreviewMode) {
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          left: `${signature.x * 100}%`,
+          top: `${signature.y * 100}%`,
+          width: `${signature.width * 100}%`,
+          height: `${signature.height * 100}%`,
+          borderRadius: '4px',
+          zIndex: 1,
+          minWidth: '20px',
+          minHeight: '10px',
+        }}
+        data-signature-overlay="true"
+      >
+        <img 
+          src={signature.data} 
+          alt="Signature"
+          className="w-full h-full object-contain pointer-events-none"
+          draggable={false}
+        />
+      </div>
+    );
+  }
+
   const style = {
     position: 'absolute' as const,
     left: `${signature.x * 100}%`,

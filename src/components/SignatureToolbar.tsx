@@ -1,16 +1,61 @@
 import { motion } from 'framer-motion';
 import { PenTool, Type, Upload } from 'lucide-react';
+import { useRef } from 'react';
 import useSignFlowStore from '../store/useSignFlowStore';
 
 const SignatureToolbar = () => {
   const {
     setShowSignaturePopup,
     setActiveSignatureType,
+    addSignature,
   } = useSignFlowStore();
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const handleToolbarButtonClick = (type: 'draw' | 'type' | 'upload') => {
-    setActiveSignatureType(type);
-    setShowSignaturePopup(true);
+    if (type === 'upload') {
+      fileInputRef.current?.click();
+    } else {
+      setActiveSignatureType(type);
+      setShowSignaturePopup(true);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file (PNG, JPEG, etc.).');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image file too large. Please select an image smaller than 5MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataURL = ev.target?.result as string;
+      if (!dataURL || !dataURL.startsWith('data:image/')) {
+        alert('Invalid image file. Please try another image.');
+        return;
+      }
+      // Default placement: center of first page
+      addSignature({
+        type: 'upload',
+        x: 0.4,
+        y: 0.45,
+        width: 0.2,
+        height: 0.1,
+        data: dataURL,
+        pageNumber: 1,
+      });
+    };
+    reader.onerror = () => {
+      alert('Failed to read the image file. Please try again.');
+    };
+    reader.readAsDataURL(file);
+    // Reset input so same file can be selected again
+    e.target.value = '';
   };
 
   const toolbarButtons = [
@@ -36,6 +81,13 @@ const SignatureToolbar = () => {
 
   return (
     <div className="flex justify-center mb-6">
+      <input
+        type="file"
+        accept="image/*"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
+      />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
