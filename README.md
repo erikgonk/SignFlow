@@ -23,11 +23,11 @@ A modern, secure, and fast PDF signing micro-SaaS built as a TypeScript single-p
 ### Installation
 
 ```bash
-# Navigate to the project directory
-cd SignFlow
+# Download the project
+git clone https://github.com/erikgonk/SignFlow.git
 
 # Install dependencies
-npm install
+cd SignFlow && npm install
 
 # Start development server
 npm run dev
@@ -56,27 +56,6 @@ npm run preview
 - **Signatures**: `react-signature-canvas` for drawing signatures
 - **State Management**: Zustand for lightweight, type-safe state
 - **Icons**: Lucide React for beautiful, consistent icons
-
-## 📱 User Experience
-
-### 1. Landing View
-- Clean, professional hero section
-- Prominent PDF upload button
-- Feature showcase with icons
-- Trust indicators emphasizing security
-
-### 2. Signing View
-- Split-screen PDF viewer and signature toolbar
-- Three signature creation methods
-- Click-to-place signature functionality
-- Signature management (move, resize, delete)
-- Real-time preview of signature placement
-
-### 3. Preview & Download View
-- Final document preview
-- Download signed PDF with one click
-- Security notice about client-side processing
-- Option to start over or go back to editing
 
 ## 🔒 Security & Privacy
 
