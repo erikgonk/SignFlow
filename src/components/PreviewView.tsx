@@ -1,0 +1,413 @@
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Download, RotateCcw, CheckCircle } from 'lucide-react';
+import { PDFDocument } from 'pdf-lib';
+import useSignFlowStore from '../store/useSignFlowStore';
+import PDFViewer from './PDFViewer';
+import { debugPDFGeneration } from '../utils/debugPDF';
+
+const PreviewView = () => {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [downloadComplete, setDownloadComplete] = useState(false);
+  
+  const {
+    pdfFile,
+    pdfDataUrl,
+    signatures,
+    setCurrentView,
+    reset
+  } = useSignFlowStore();
+
+  const handleBackToSigning = () => {
+    setCurrentView('signing');
+  };
+
+  const handleStartOver = () => {
+    reset();
+  };
+
+  const handleDownload = async () => {
+    if (!pdfDataUrl || !pdfFile) {
+      console.error('No PDF data available for download');
+      alert('No PDF file available. Please upload a PDF first.');
+      return;
+    }
+    
+    setIsGenerating(true);
+    
+    try {
+      debugPDFGeneration.log('Starting PDF generation process');
+      
+      // Validate input data
+      const pdfValidation = debugPDFGeneration.validatePDFData(pdfDataUrl, pdfFile);
+      if (!pdfValidation.isValid) {
+        throw new Error(`PDF validation failed: ${pdfValidation.errors.join(', ')}`);
+      }
+      
+      if (pdfValidation.warnings.length > 0) {
+        debugPDFGeneration.log('PDF validation warnings', pdfValidation.warnings);
+      }
+      
+      debugPDFGeneration.log('Signatures to process', { count: signatures.length, signatures });
+      
+      // Validate signatures
+      for (const signature of signatures) {
+        const sigValidation = debugPDFGeneration.validateSignatureData(signature);
+        if (!sigValidation.isValid) {
+          debugPDFGeneration.error(`Invalid signature ${signature.id}`, sigValidation.errors);
+          throw new Error(`Signature validation failed: ${sigValidation.errors.join(', ')}`);
+        }
+        
+        if (sigValidation.warnings.length > 0) {
+          debugPDFGeneration.log(`Signature ${signature.id} warnings`, sigValidation.warnings);
+        }
+        
+        // Test if signature image can be loaded
+        try {
+          await debugPDFGeneration.testImageEmbedding(signature.data);
+        } catch (error) {
+          debugPDFGeneration.error(`Signature ${signature.id} image test failed`, error);
+          throw new Error(`Signature image is invalid: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+      }
+      
+      debugPDFGeneration.log('Loading original PDF');
+      
+      // Load the original PDF using ArrayBuffer for better reliability
+      const existingPdfBytes = await fetch(pdfDataUrl).then(res => {
+        if (!res.ok) {
+          throw new Error(`Failed to fetch PDF: ${res.status} ${res.statusText}`);
+        }
+        return res.arrayBuffer();
+      });
+      
+      debugPDFGeneration.log('Original PDF loaded', { size: existingPdfBytes.byteLength });
+      
+      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      const pages = pdfDoc.getPages();
+      
+      if (pages.length === 0) {
+        throw new Error('PDF has no pages');
+      }
+      
+      debugPDFGeneration.log('PDF document loaded', { pageCount: pages.length });
+      
+      // Add signatures to the PDF
+      for (const signature of signatures) {
+        debugPDFGeneration.log('Processing signature', { id: signature.id, type: signature.type });
+        
+        if (signature.pageNumber > pages.length) {
+          debugPDFGeneration.log(`Signature ${signature.id} targets page ${signature.pageNumber}, but PDF only has ${pages.length} pages - skipping`);
+          continue;
+        }
+        
+        const page = pages[signature.pageNumber - 1];
+        const { width: pageWidth, height: pageHeight } = page.getSize();
+        
+        debugPDFGeneration.log('Page dimensions', { width: pageWidth, height: pageHeight });
+        
+        try {
+          // Validate signature data
+          if (!signature.data || typeof signature.data !== 'string') {
+            throw new Error('Invalid signature data');
+          }
+          
+          let imageBytes: ArrayBuffer;
+          
+          if (signature.data.startsWith('data:image/')) {
+            try {
+              // Extract base64 data from data URL
+              const [, base64Data] = signature.data.split(',');
+              
+              if (!base64Data) {
+                throw new Error('No base64 data found');
+              }
+              
+              // Validate base64
+              const binaryString = atob(base64Data);
+              const bytes = new Uint8Array(binaryString.length);
+              
+              for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+              }
+              
+              imageBytes = bytes.buffer;
+              debugPDFGeneration.log('Signature data decoded', { id: signature.id, size: imageBytes.byteLength });
+            } catch (error) {
+              debugPDFGeneration.error('Failed to decode base64 data URL', error);
+              throw new Error(`Failed to decode signature data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            }
+          } else {
+            throw new Error('Signature data is not a valid data URL');
+          }
+          
+          if (imageBytes.byteLength === 0) {
+            throw new Error('Signature image data is empty');
+          }
+          
+          // Determine image format and embed
+          let image;
+          try {
+            if (signature.data.includes('data:image/png')) {
+              debugPDFGeneration.log('Embedding as PNG', signature.id);
+              image = await pdfDoc.embedPng(imageBytes);
+            } else if (signature.data.includes('data:image/jpeg') || signature.data.includes('data:image/jpg')) {
+              debugPDFGeneration.log('Embedding as JPEG', signature.id);
+              image = await pdfDoc.embedJpg(imageBytes);
+            } else {
+              // Default to PNG for canvas-generated images (most signatures)
+              debugPDFGeneration.log('Embedding as PNG (default)', signature.id);
+              image = await pdfDoc.embedPng(imageBytes);
+            }
+            debugPDFGeneration.log('Image embedded successfully', { id: signature.id, dimensions: image.scale(1) });
+          } catch (embedError) {
+            debugPDFGeneration.error('Failed to embed image, trying PNG fallback', embedError);
+            
+            // Try PNG as fallback
+            try {
+              image = await pdfDoc.embedPng(imageBytes);
+              debugPDFGeneration.log('Successfully embedded as PNG on retry', signature.id);
+            } catch (retryError) {
+              debugPDFGeneration.error('Failed to embed image even as PNG', retryError);
+              throw new Error(`Failed to embed signature image: ${retryError instanceof Error ? retryError.message : 'Unknown error'}`);
+            }
+          }
+          
+          // Calculate position and size with bounds checking
+          const x = Math.max(0, Math.min(signature.x * pageWidth, pageWidth - 10));
+          const y = Math.max(0, pageHeight - (signature.y * pageHeight) - (signature.height * pageHeight));
+          const width = Math.min(signature.width * pageWidth, pageWidth - x);
+          const height = Math.min(signature.height * pageHeight, pageHeight - y);
+          
+          if (width <= 0 || height <= 0) {
+            debugPDFGeneration.log('Invalid calculated dimensions, skipping signature', { 
+              id: signature.id, 
+              calculated: { width, height, x, y },
+              original: { width: signature.width, height: signature.height, x: signature.x, y: signature.y }
+            });
+            continue;
+          }
+          
+          debugPDFGeneration.log('Drawing signature on page', { 
+            id: signature.id,
+            position: { x, y, width, height }
+          });
+          
+          // Draw the signature on the page
+          page.drawImage(image, {
+            x,
+            y,
+            width,
+            height,
+          });
+          
+          debugPDFGeneration.log(`Successfully placed signature ${signature.id}`);
+          
+        } catch (error) {
+          debugPDFGeneration.error('Failed to process signature', { id: signature.id, error });
+          throw new Error(`Failed to process signature ${signature.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+      }
+      
+      debugPDFGeneration.log('Generating final PDF document');
+      
+      // Generate the final PDF
+      const pdfBytes = await pdfDoc.save();
+      
+      debugPDFGeneration.log('PDF generated successfully', { outputSize: pdfBytes.length });
+      
+      // Create download link
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `signed_${pdfFile.name}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      URL.revokeObjectURL(url);
+      
+      setDownloadComplete(true);
+      setTimeout(() => setDownloadComplete(false), 3000);
+      
+      debugPDFGeneration.log('Download initiated successfully');
+      
+    } catch (error) {
+      debugPDFGeneration.error('PDF generation failed', error);
+      
+      let errorMessage = 'Failed to generate signed PDF. ';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Failed to fetch')) {
+          errorMessage += 'Could not load the original PDF file.';
+        } else if (error.message.includes('embed')) {
+          errorMessage += 'Could not embed signatures into the PDF.';
+        } else if (error.message.includes('validation')) {
+          errorMessage += 'Invalid data detected.';
+        } else {
+          errorMessage += `Error: ${error.message}`;
+        }
+      } else {
+        errorMessage += 'Please try again.';
+      }
+      
+      alert(errorMessage);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 p-4"
+      >
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={handleBackToSigning}
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft size={20} />
+              <span>Back to Signing</span>
+            </button>
+            
+            <div className="border-l border-gray-300 pl-4">
+              <h1 className="text-xl font-semibold text-gray-900">
+                Preview & Download
+              </h1>
+              {pdfFile && (
+                <p className="text-sm text-gray-600">{pdfFile.name}</p>
+              )}
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={handleStartOver}
+              className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <RotateCcw size={16} />
+              <span>Start Over</span>
+            </button>
+            
+            <button
+              onClick={handleDownload}
+              disabled={isGenerating || signatures.length === 0}
+              className={`flex items-center space-x-2 px-6 py-2 rounded-lg font-medium transition-all ${
+                downloadComplete
+                  ? 'bg-green-600 text-white'
+                  : isGenerating
+                  ? 'bg-gray-400 text-white cursor-wait'
+                  : signatures.length > 0
+                  ? 'bg-primary-600 text-white hover:bg-primary-700 shadow-sm'
+                  : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              {downloadComplete ? (
+                <>
+                  <CheckCircle size={16} />
+                  <span>Downloaded!</span>
+                </>
+              ) : isGenerating ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Generating...</span>
+                </>
+              ) : (
+                <>
+                  <Download size={16} />
+                  <span>Download</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="space-y-6"
+        >
+          {/* Status Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Document Ready for Download
+                  </h3>
+                  <p className="text-gray-600">
+                    {signatures.length} signature{signatures.length !== 1 ? 's' : ''} applied to your document
+                  </p>
+                </div>
+              </div>
+              
+              <div className="text-right">
+                <div className="text-sm text-gray-500 mb-1">File size</div>
+                <div className="font-medium text-gray-900">
+                  {pdfFile && `${(pdfFile.size / 1024 / 1024).toFixed(1)} MB`}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* PDF Preview */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="p-4 border-b border-gray-200 bg-gray-50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium text-gray-900">Final Document Preview</h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    This is how your signed document will look
+                  </p>
+                </div>
+                {signatures.length > 0 && (
+                  <div className="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border">
+                    💡 Hover over signatures to edit them
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="p-6">
+              <PDFViewer onPageClick={() => {}} isPreviewMode={true} />
+            </div>
+          </div>
+
+          {/* Security Notice */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0">
+                <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">
+                  🔒
+                </div>
+              </div>
+              <div>
+                <h4 className="font-medium text-blue-900 mb-1">Secure Processing</h4>
+                <p className="text-sm text-blue-800">
+                  Your document is processed entirely in your browser. 
+                  No files are uploaded to servers, ensuring complete privacy and security.
+                </p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default PreviewView;
