@@ -58,124 +58,35 @@ export interface SignFlowState {
   reset: () => void;
 }
 
+// Utility functions for localStorage persistence
+const STORAGE_KEY = 'signflow-state';
+function saveStateToStorage(state: Partial<SignFlowState>) {
+  const data = {
+    pdfDataUrl: state.pdfDataUrl,
+    signatures: state.signatures,
+    currentView: state.currentView,
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+function loadStateFromStorage(): Partial<SignFlowState> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+
 const useSignFlowStore = create<SignFlowState>((set) => ({
-  // Initial state
-  currentView: 'landing',
-  pdfFile: null,
-  pdfDataUrl: null,
-  pdfArrayBuffer: null,
-  signatures: [],
-  activeSignatureType: 'draw',
-  isPlacingSignature: false,
-  selectedSignature: null,
-  showSignaturePopup: false,
-  popupPosition: null,
-  drawnSignature: null,
-  typedSignature: '',
-  uploadedSignature: null,
-  
-  // Actions
-  setCurrentView: (view) => set({ currentView: view }),
-  
-  setPdfFile: (file) => {
-    if (file) {
-      console.log('Setting PDF file:', file.name, file.type, file.size);
-      
-      // Validate file type and size
-      if (file.type !== 'application/pdf') {
-        alert('Please select a PDF file.');
-        return;
-      }
-      
-      if (file.size > 50 * 1024 * 1024) { // 50MB limit
-        alert('File size too large. Please select a PDF smaller than 50MB.');
-        return;
-      }
-      
-      // Read file as both ArrayBuffer and data URL for maximum compatibility
-      const dataUrlReader = new FileReader();
-      const arrayBufferReader = new FileReader();
-      
-      let dataUrl: string | null = null;
-      let arrayBuffer: ArrayBuffer | null = null;
-      
-      const updateStore = () => {
-        if (dataUrl && arrayBuffer) {
-          console.log('Both formats read successfully');
-          set({ 
-            pdfFile: file, 
-            pdfDataUrl: dataUrl,
-            pdfArrayBuffer: arrayBuffer,
-            currentView: 'signing'
-          });
-        }
-      };
-      
-      dataUrlReader.onload = (e) => {
-        dataUrl = e.target?.result as string;
-        console.log('PDF data URL read successfully, length:', dataUrl?.length);
-        updateStore();
-      };
-      
-      arrayBufferReader.onload = (e) => {
-        arrayBuffer = e.target?.result as ArrayBuffer;
-        console.log('PDF array buffer read successfully, size:', arrayBuffer?.byteLength);
-        updateStore();
-      };
-      
-      dataUrlReader.onerror = arrayBufferReader.onerror = (e) => {
-        console.error('Error reading PDF file:', e);
-        alert('Failed to read the PDF file. Please try again.');
-      };
-      
-      dataUrlReader.readAsDataURL(file);
-      arrayBufferReader.readAsArrayBuffer(file);
-    } else {
-      set({ pdfFile: null, pdfDataUrl: null, pdfArrayBuffer: null });
-    }
-  },
-  
-  addSignature: (signature) => {
-    const id = crypto.randomUUID();
-    set((state) => ({
-      signatures: [...state.signatures, { ...signature, id }],
-      isPlacingSignature: false,
-      selectedSignature: id,
-    }));
-  },
-  
-  updateSignature: (id, updates) => {
-    set((state) => ({
-      signatures: state.signatures.map((sig) =>
-        sig.id === id ? { ...sig, ...updates } : sig
-      ),
-    }));
-  },
-  
-  removeSignature: (id) => {
-    set((state) => ({
-      signatures: state.signatures.filter((sig) => sig.id !== id),
-      selectedSignature: state.selectedSignature === id ? null : state.selectedSignature,
-    }));
-  },
-  
-  setActiveSignatureType: (type) => set({ activeSignatureType: type }),
-  setIsPlacingSignature: (placing) => set({ isPlacingSignature: placing }),
-  setSelectedSignature: (id) => set({ selectedSignature: id }),
-  setShowSignaturePopup: (show) => set({ showSignaturePopup: show }),
-  setPopupPosition: (position) => set({ popupPosition: position }),
-  
-  setDrawnSignature: (data) => set({ drawnSignature: data }),
-  setTypedSignature: (text) => set({ typedSignature: text }),
-  setUploadedSignature: (data) => set({ uploadedSignature: data }),
-  
-  reset: () => set({
-    currentView: 'landing',
+  // Initial state (restored from localStorage if available)
+  ...{
+    currentView: 'landing' as ViewState,
     pdfFile: null,
     pdfDataUrl: null,
     pdfArrayBuffer: null,
     signatures: [],
-    activeSignatureType: 'draw',
+    activeSignatureType: 'draw' as SignatureType,
     isPlacingSignature: false,
     selectedSignature: null,
     showSignaturePopup: false,
@@ -183,7 +94,211 @@ const useSignFlowStore = create<SignFlowState>((set) => ({
     drawnSignature: null,
     typedSignature: '',
     uploadedSignature: null,
+  },
+  ...loadStateFromStorage(),
+
+  setCurrentView: (view: ViewState) => {
+    set((state) => {
+      const newState = { ...state, currentView: view };
+      saveStateToStorage(newState);
+      return { currentView: view };
+    });
+    let url = '/';
+    if (view === 'signing') url = '/signing';
+    else if (view === 'preview') url = '/preview';
+    else if (view === 'landing') url = '/';
+    window.history.pushState({}, '', url);
+  },
+
+  setPdfFile: (file: File | null) => {
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        alert('Please select a PDF file.');
+        return;
+      }
+      if (file.size > 50 * 1024 * 1024) {
+        alert('File size too large. Please select a PDF smaller than 50MB.');
+        return;
+      }
+      const dataUrlReader = new FileReader();
+      const arrayBufferReader = new FileReader();
+      let dataUrl: string | null = null;
+      let arrayBuffer: ArrayBuffer | null = null;
+      const updateStore = () => {
+        if (dataUrl && arrayBuffer) {
+          const newState: SignFlowState = {
+            pdfFile: file,
+            pdfDataUrl: dataUrl,
+            pdfArrayBuffer: arrayBuffer,
+            signatures: [],
+            activeSignatureType: 'draw',
+            isPlacingSignature: false,
+            selectedSignature: null,
+            showSignaturePopup: false,
+            popupPosition: null,
+            drawnSignature: null,
+            typedSignature: '',
+            uploadedSignature: null,
+            currentView: 'signing',
+            setCurrentView: useSignFlowStore.getState().setCurrentView,
+            setPdfFile: useSignFlowStore.getState().setPdfFile,
+            addSignature: useSignFlowStore.getState().addSignature,
+            updateSignature: useSignFlowStore.getState().updateSignature,
+            removeSignature: useSignFlowStore.getState().removeSignature,
+            setActiveSignatureType: useSignFlowStore.getState().setActiveSignatureType,
+            setIsPlacingSignature: useSignFlowStore.getState().setIsPlacingSignature,
+            setSelectedSignature: useSignFlowStore.getState().setSelectedSignature,
+            setShowSignaturePopup: useSignFlowStore.getState().setShowSignaturePopup,
+            setPopupPosition: useSignFlowStore.getState().setPopupPosition,
+            setDrawnSignature: useSignFlowStore.getState().setDrawnSignature,
+            setTypedSignature: useSignFlowStore.getState().setTypedSignature,
+            setUploadedSignature: useSignFlowStore.getState().setUploadedSignature,
+            reset: useSignFlowStore.getState().reset,
+          };
+          set(newState);
+          saveStateToStorage(newState);
+          useSignFlowStore.getState().setCurrentView('signing');
+        }
+      };
+      dataUrlReader.onload = (e: ProgressEvent<FileReader>) => {
+        dataUrl = e.target?.result as string;
+        updateStore();
+      };
+      arrayBufferReader.onload = (e: ProgressEvent<FileReader>) => {
+        arrayBuffer = e.target?.result as ArrayBuffer;
+        updateStore();
+      };
+      dataUrlReader.onerror = arrayBufferReader.onerror = () => {
+        alert('Failed to read the PDF file. Please try again.');
+      };
+      dataUrlReader.readAsDataURL(file);
+      arrayBufferReader.readAsArrayBuffer(file);
+    } else {
+      const newState: Partial<SignFlowState> = {
+        pdfFile: null,
+        pdfDataUrl: null,
+        pdfArrayBuffer: null,
+        signatures: [],
+        currentView: 'landing',
+      };
+      set(newState);
+      saveStateToStorage(newState);
+    }
+  },
+
+  addSignature: (signature: Omit<Signature, 'id'>) => {
+    const id = crypto.randomUUID();
+    set((state) => {
+      const newState = {
+        ...state,
+        signatures: [...state.signatures, { ...signature, id }],
+        isPlacingSignature: false,
+        selectedSignature: id,
+      };
+      saveStateToStorage(newState);
+      return newState;
+    });
+  },
+
+  updateSignature: (id: string, updates: Partial<Signature>) => {
+    set((state) => {
+      const newState = {
+        ...state,
+        signatures: state.signatures.map((sig) =>
+          sig.id === id ? { ...sig, ...updates } : sig
+        ),
+      };
+      saveStateToStorage(newState);
+      return newState;
+    });
+  },
+
+  removeSignature: (id: string) => {
+    set((state) => {
+      const newState = {
+        ...state,
+        signatures: state.signatures.filter((sig) => sig.id !== id),
+        selectedSignature: state.selectedSignature === id ? null : state.selectedSignature,
+      };
+      saveStateToStorage(newState);
+      return newState;
+    });
+  },
+
+  setActiveSignatureType: (type: SignatureType) => set((state) => {
+    const newState = { ...state, activeSignatureType: type };
+    saveStateToStorage(newState);
+    return newState;
   }),
+  setIsPlacingSignature: (placing: boolean) => set((state) => {
+    const newState = { ...state, isPlacingSignature: placing };
+    saveStateToStorage(newState);
+    return newState;
+  }),
+  setSelectedSignature: (id: string | null) => set((state) => {
+    const newState = { ...state, selectedSignature: id };
+    saveStateToStorage(newState);
+    return newState;
+  }),
+  setShowSignaturePopup: (show: boolean) => set((state) => {
+    const newState = { ...state, showSignaturePopup: show };
+    saveStateToStorage(newState);
+    return newState;
+  }),
+  setPopupPosition: (position: { x: number; y: number; pageNumber: number } | null) => set((state) => {
+    const newState = { ...state, popupPosition: position };
+    saveStateToStorage(newState);
+    return newState;
+  }),
+  setDrawnSignature: (data: string | null) => set((state) => {
+    const newState = { ...state, drawnSignature: data };
+    saveStateToStorage(newState);
+    return newState;
+  }),
+  setTypedSignature: (text: string) => set((state) => {
+    const newState = { ...state, typedSignature: text };
+    saveStateToStorage(newState);
+    return newState;
+  }),
+  setUploadedSignature: (data: string | null) => set((state) => {
+    const newState = { ...state, uploadedSignature: data };
+    saveStateToStorage(newState);
+    return newState;
+  }),
+  reset: () => {
+    const newState: SignFlowState = {
+      currentView: 'landing',
+      pdfFile: null,
+      pdfDataUrl: null,
+      pdfArrayBuffer: null,
+      signatures: [],
+      activeSignatureType: 'draw',
+      isPlacingSignature: false,
+      selectedSignature: null,
+      showSignaturePopup: false,
+      popupPosition: null,
+      drawnSignature: null,
+      typedSignature: '',
+      uploadedSignature: null,
+      setCurrentView: useSignFlowStore.getState().setCurrentView,
+      setPdfFile: useSignFlowStore.getState().setPdfFile,
+      addSignature: useSignFlowStore.getState().addSignature,
+      updateSignature: useSignFlowStore.getState().updateSignature,
+      removeSignature: useSignFlowStore.getState().removeSignature,
+      setActiveSignatureType: useSignFlowStore.getState().setActiveSignatureType,
+      setIsPlacingSignature: useSignFlowStore.getState().setIsPlacingSignature,
+      setSelectedSignature: useSignFlowStore.getState().setSelectedSignature,
+      setShowSignaturePopup: useSignFlowStore.getState().setShowSignaturePopup,
+      setPopupPosition: useSignFlowStore.getState().setPopupPosition,
+      setDrawnSignature: useSignFlowStore.getState().setDrawnSignature,
+      setTypedSignature: useSignFlowStore.getState().setTypedSignature,
+      setUploadedSignature: useSignFlowStore.getState().setUploadedSignature,
+      reset: useSignFlowStore.getState().reset,
+    };
+    set(newState);
+    saveStateToStorage(newState);
+    useSignFlowStore.getState().setCurrentView('landing');
+  },
 }));
 
 export default useSignFlowStore;
