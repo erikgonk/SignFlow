@@ -103,7 +103,7 @@ const SigningView = () => {
         animate={{ opacity: 1, y: 0 }}
         className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 p-4"
       >
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <button
               onClick={handleBackToLanding}
@@ -114,12 +114,9 @@ const SigningView = () => {
             </button>
             
             <div className="border-l border-gray-300 pl-4">
-              <h1 className="text-xl font-semibold text-gray-900">
-                Sign Document
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900 select-none" style={{ letterSpacing: '-0.02em' }}>
+                Sign<span className="text-primary-600">Flow</span>
               </h1>
-              {pdfFile && (
-                <p className="text-sm text-gray-600">{pdfFile.name}</p>
-              )}
             </div>
           </div>
           
@@ -157,23 +154,28 @@ const SigningView = () => {
             <div className="p-6 border-b border-gray-200 bg-blue-50">
               <div className="flex items-start space-x-3">
                 <div className="flex-shrink-0 w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                  1
-                </div>
-                <div>                <h3 className="font-medium text-gray-900 mb-1">
                   {isPlacingSignature
-                    ? 'Click on the PDF to place your signature'
+                    ? 1
                     : signatures.length > 0
-                    ? 'Manage your signatures'
+                    ? 2
+                    : 1
+                  }</div>
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-1">
+                    {isPlacingSignature
+                      ? 'Click on the PDF to place your signature'
+                      : signatures.length > 0
+                      ? 'Manage your signatures'
                     : 'Add your signature to the document'
                   }
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {isPlacingSignature
-                    ? 'Click anywhere on the document to place your prepared signature at that location.'
-                    : signatures.length > 0
-                    ? 'Click on any signature to select it. Drag to move, use the resize handle in the bottom-right corner, or click the × to delete. Use the toolbar below to add more signatures.'
-                    : 'Use the toolbar buttons below to create your signature, or click directly on the document to open the signature creation popup.'
-                  }
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {isPlacingSignature
+                      ? 'Click anywhere on the document to place your prepared signature at that location.'
+                      : signatures.length > 0
+                      ? 'Click on any signature to select it. Drag to move, use the resize handle in the bottom-right corner, or click the × to delete. Use the toolbar below to add more signatures.'
+                      : 'Use the toolbar buttons below to create your signature, or click directly on the document to open the signature creation popup.'
+                    }
                   </p>
                 </div>
               </div>
@@ -181,6 +183,7 @@ const SigningView = () => {
 
             {/* PDF Viewer */}
             <div className="p-6">
+              {/* File size display removed, only show on preview screen */}
               <PDFViewer onPageClick={handlePageClick} onSignatureActiveChange={setIsSignatureActive} />
             </div>
           </motion.div>

@@ -14,7 +14,7 @@ const PDFViewer = ({ onPageClick, isPreviewMode = false, onSignatureActiveChange
   const [numPages, setNumPages] = useState<number>(0);
   const [pageWidth, setPageWidth] = useState<number>(600);
   
-  const { pdfDataUrl, pdfFile, pdfArrayBuffer, signatures, selectedSignature, updateSignature, removeSignature, setSelectedSignature } = useSignFlowStore();
+  const { pdfDataUrl, pdfFile, pdfFileName, pdfArrayBuffer, signatures, selectedSignature, updateSignature, removeSignature, setSelectedSignature } = useSignFlowStore();
 
   // Track if any signature is being dragged or resized
   const [anySignatureActive] = useState(false);
@@ -93,6 +93,12 @@ const PDFViewer = ({ onPageClick, isPreviewMode = false, onSignatureActiveChange
 
   return (
     <div className="flex flex-col items-center space-y-6">
+      {/* Show PDF file name if available */}
+      {pdfFileName && (
+        <div className="text-lg font-semibold text-gray-700 mt-2 mb-2" data-testid="pdf-file-name">
+          {pdfFileName}
+        </div>
+      )}
       <div className="relative bg-white shadow-lg rounded-lg overflow-hidden">
         <PDFErrorBoundary onRetry={() => window.location.reload()}>
           <Document
@@ -125,14 +131,12 @@ const PDFViewer = ({ onPageClick, isPreviewMode = false, onSignatureActiveChange
             {Array.from(new Array(numPages), (_, index) => {
               const pageNumber = index + 1;
               const hasSignatures = signatures.some(sig => sig.pageNumber === pageNumber);
-              
               return (
                 <div key={`page_${pageNumber}`} className="relative mb-4">
                   {/* Page number indicator */}
                   <div className="absolute -top-6 left-0 z-20 bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
                     Page {pageNumber} of {numPages}
                   </div>
-                  
                   <div
                     onClick={isPreviewMode ? undefined : (e) => handlePageClick(e, pageNumber)}
                     className={`relative rounded shadow-sm ${
@@ -146,7 +150,6 @@ const PDFViewer = ({ onPageClick, isPreviewMode = false, onSignatureActiveChange
                       width={pageWidth}
                       onLoadSuccess={(page) => setPageWidth(page.width)}
                     />
-                    
                     {/* Render signatures for this page */}
                     {signatures
                       .filter(sig => sig.pageNumber === pageNumber)
@@ -174,7 +177,6 @@ const PDFViewer = ({ onPageClick, isPreviewMode = false, onSignatureActiveChange
           </Document>
         </PDFErrorBoundary>
       </div>
-      
       {numPages > 1 && (
         <p className="text-gray-600 text-sm">
           Showing {numPages} page{numPages !== 1 ? 's' : ''} • Drag signatures between pages

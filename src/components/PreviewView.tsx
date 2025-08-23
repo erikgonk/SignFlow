@@ -6,6 +6,17 @@ import useSignFlowStore from '../store/useSignFlowStore';
 import PDFViewer from './PDFViewer';
 import { debugPDFGeneration } from '../utils/debugPDF';
 
+const formatFileSize = (size: number | null) => {
+  if (size == null) return '';
+  const mb = size / (1024 * 1024);
+  let formatted = mb.toFixed(2);
+  // If the value is exactly 0.00, show 0.000
+  if (formatted === '0.00') {
+    formatted = mb.toFixed(3);
+  }
+  return `${formatted} MB`;
+};
+
 const PreviewView = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [downloadComplete, setDownloadComplete] = useState(false);
@@ -358,7 +369,7 @@ const PreviewView = () => {
               <div className="text-right">
                 <div className="text-sm text-gray-500 mb-1">File size</div>
                 <div className="font-medium text-gray-900">
-                  {pdfFile && `${(pdfFile.size / 1024 / 1024).toFixed(1)} MB`}
+                  {pdfFile && formatFileSize(pdfFile.size)}
                 </div>
               </div>
             </div>

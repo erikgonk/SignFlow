@@ -22,6 +22,8 @@ export interface SignFlowState {
   
   // PDF handling
   pdfFile: File | null;
+  pdfFileName: string | null;
+  pdfFileSize: number | null;
   pdfDataUrl: string | null;
   pdfArrayBuffer: ArrayBuffer | null;
   setPdfFile: (file: File | null) => void;
@@ -63,6 +65,8 @@ const STORAGE_KEY = 'signflow-state';
 function saveStateToStorage(state: Partial<SignFlowState>) {
   const data = {
     pdfDataUrl: state.pdfDataUrl,
+    pdfFileName: state.pdfFileName,
+    pdfFileSize: state.pdfFileSize,
     signatures: state.signatures,
     currentView: state.currentView,
   };
@@ -83,6 +87,8 @@ const useSignFlowStore = create<SignFlowState>((set) => ({
   ...{
     currentView: 'landing' as ViewState,
     pdfFile: null,
+    pdfFileName: null,
+    pdfFileSize: null,
     pdfDataUrl: null,
     pdfArrayBuffer: null,
     signatures: [],
@@ -95,7 +101,13 @@ const useSignFlowStore = create<SignFlowState>((set) => ({
     typedSignature: '',
     uploadedSignature: null,
   },
-  ...loadStateFromStorage(),
+  ...(() => {
+    const loaded = loadStateFromStorage();
+    return {
+      ...loaded,
+      pdfFileSize: loaded.pdfFileSize ?? null,
+    };
+  })(),
 
   setCurrentView: (view: ViewState) => {
     set((state) => {
@@ -124,10 +136,14 @@ const useSignFlowStore = create<SignFlowState>((set) => ({
       const arrayBufferReader = new FileReader();
       let dataUrl: string | null = null;
       let arrayBuffer: ArrayBuffer | null = null;
+      const fileName = file.name;
+      const fileSize = file.size;
       const updateStore = () => {
         if (dataUrl && arrayBuffer) {
           const newState: SignFlowState = {
             pdfFile: file,
+            pdfFileName: fileName,
+            pdfFileSize: fileSize,
             pdfDataUrl: dataUrl,
             pdfArrayBuffer: arrayBuffer,
             signatures: [],
@@ -176,6 +192,8 @@ const useSignFlowStore = create<SignFlowState>((set) => ({
     } else {
       const newState: Partial<SignFlowState> = {
         pdfFile: null,
+        pdfFileName: null,
+        pdfFileSize: null,
         pdfDataUrl: null,
         pdfArrayBuffer: null,
         signatures: [],
@@ -269,6 +287,8 @@ const useSignFlowStore = create<SignFlowState>((set) => ({
     const newState: SignFlowState = {
       currentView: 'landing',
       pdfFile: null,
+      pdfFileName: null,
+      pdfFileSize: null,
       pdfDataUrl: null,
       pdfArrayBuffer: null,
       signatures: [],
