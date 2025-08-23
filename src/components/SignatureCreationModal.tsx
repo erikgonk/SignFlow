@@ -29,6 +29,37 @@ const SignatureCreationModal = ({
   const signatureCanvasRef = useRef<SignatureCanvas>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // State to track if signature is valid for enabling button
+  const [isSignatureValid, setIsSignatureValid] = useState(false);
+
+  // Check validity for draw and type tabs
+  // Helper to check if draw canvas has content
+  const checkDrawSignatureValid = () => {
+    if (signatureCanvasRef.current) {
+      const canvas = signatureCanvasRef.current.getCanvas();
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const hasContent = imageData.data.some((pixel, index) => index % 4 === 3 && pixel !== 0);
+        setIsSignatureValid(hasContent);
+      } else {
+        setIsSignatureValid(false);
+      }
+    } else {
+      setIsSignatureValid(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'draw') {
+      checkDrawSignatureValid();
+    } else if (activeTab === 'type') {
+      setIsSignatureValid(!!typedSignature.trim());
+    } else {
+      setIsSignatureValid(false);
+    }
+  }, [activeTab, typedSignature]);
+
   // Sync activeTab with store's activeSignatureType when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -53,6 +84,10 @@ const SignatureCreationModal = ({
 
   const handleSave = () => {
     let signatureData = '';
+    // Always reset draw validity before checking
+    if (activeTab === 'draw') {
+      setIsSignatureValid(false);
+    }
 
     switch (activeTab) {
       case 'draw':
@@ -162,12 +197,14 @@ const SignatureCreationModal = ({
     if (signatureCanvasRef.current) {
       signatureCanvasRef.current.clear();
     }
+    setIsSignatureValid(false);
     onClose();
   };
 
   const clearDrawnSignature = () => {
     if (signatureCanvasRef.current) {
       signatureCanvasRef.current.clear();
+      setIsSignatureValid(false);
     }
   };
 
@@ -312,11 +349,31 @@ const SignatureCreationModal = ({
                       className: 'signature-canvas w-full h-48'
                     }}
                     backgroundColor="white"
+                    onEnd={() => {
+                      if (signatureCanvasRef.current) {
+                        const canvas = signatureCanvasRef.current.getCanvas();
+                        const ctx = canvas.getContext('2d');
+                        if (ctx) {
+                          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                          const hasContent = imageData.data.some((pixel, index) => index % 4 === 3 && pixel !== 0);
+                          setIsSignatureValid(hasContent);
+                        } else {
+                          setIsSignatureValid(false);
+                        }
+                      } else {
+                        setIsSignatureValid(false);
+                      }
+                    }}
                   />
                 </div>
                 <div className="flex justify-between">
                   <button
-                    onClick={clearDrawnSignature}
+                    onClick={() => {
+                      if (signatureCanvasRef.current) {
+                        signatureCanvasRef.current.clear();
+                        setIsSignatureValid(false);
+                      }
+                    }}
                     className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     Clear
@@ -389,7 +446,12 @@ const SignatureCreationModal = ({
             {activeTab !== 'upload' && (
               <button
                 onClick={handleSave}
-                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2"
+                disabled={!isSignatureValid}
+                className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all
+                  ${isSignatureValid
+                    ? 'bg-primary-600 text-white hover:bg-primary-700 shadow-sm'
+                    : 'bg-gray-200 text-gray-500 cursor-not-allowed'}
+                `}
               >
                 <Check className="w-4 h-4" />
                 Add Signature
