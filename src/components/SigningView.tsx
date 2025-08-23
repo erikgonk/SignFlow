@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArrowLeft, Download } from 'lucide-react';
+import { useState } from 'react';
 import useSignFlowStore from '../store/useSignFlowStore';
 import PDFViewer from './PDFViewer';
 import SignatureToolbar from './SignatureToolbar';
@@ -14,7 +15,6 @@ const SigningView = () => {
     isPlacingSignature,
     activeSignatureType,
     drawnSignature,
-    typedSignature,
     uploadedSignature,
     setCurrentView,
     setShowSignaturePopup,
@@ -22,6 +22,8 @@ const SigningView = () => {
     setIsPlacingSignature,
     addSignature,
   } = useSignFlowStore();
+
+  const [isSignatureActive, setIsSignatureActive] = useState(false);
 
   const handleBackToLanding = () => {
     setCurrentView('landing');
@@ -32,6 +34,9 @@ const SigningView = () => {
   };
 
   const handlePageClick = (x: number, y: number, pageNumber: number, event?: React.MouseEvent) => {
+    // Block popup if dragging/resizing a signature
+    if (isSignatureActive) return;
+
     // Check if click is on an existing signature
     const target = event?.target as HTMLElement;
     const isClickingOnSignature = target?.closest('[data-signature-overlay]') !== null;
@@ -176,7 +181,7 @@ const SigningView = () => {
 
             {/* PDF Viewer */}
             <div className="p-6">
-              <PDFViewer onPageClick={handlePageClick} />
+              <PDFViewer onPageClick={handlePageClick} onSignatureActiveChange={setIsSignatureActive} />
             </div>
           </motion.div>
         </div>

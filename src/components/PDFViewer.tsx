@@ -7,13 +7,17 @@ import PDFErrorBoundary from './PDFErrorBoundary';
 interface PDFViewerProps {
   onPageClick: (x: number, y: number, pageNumber: number, event?: React.MouseEvent) => void;
   isPreviewMode?: boolean;
+  onSignatureActiveChange?: (active: boolean) => void;
 }
 
-const PDFViewer = ({ onPageClick, isPreviewMode = false }: PDFViewerProps) => {
+const PDFViewer = ({ onPageClick, isPreviewMode = false, onSignatureActiveChange }: PDFViewerProps) => {
   const [numPages, setNumPages] = useState<number>(0);
   const [pageWidth, setPageWidth] = useState<number>(600);
   
   const { pdfDataUrl, pdfFile, pdfArrayBuffer, signatures, selectedSignature, updateSignature, removeSignature, setSelectedSignature } = useSignFlowStore();
+
+  // Track if any signature is being dragged or resized
+  const [anySignatureActive] = useState(false);
 
   const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -43,6 +47,14 @@ const PDFViewer = ({ onPageClick, isPreviewMode = false }: PDFViewerProps) => {
   const handleSignatureResize = useCallback((sigId: string, newWidth: number, newHeight: number) => {
     updateSignature(sigId, { width: newWidth, height: newHeight });
   }, [updateSignature]);
+
+  useEffect(() => {
+    if (anySignatureActive) {
+      if (onSignatureActiveChange) onSignatureActiveChange(true);
+    } else {
+      if (onSignatureActiveChange) onSignatureActiveChange(false);
+    }
+  }, [anySignatureActive, onSignatureActiveChange]);
 
   if (!pdfDataUrl && !pdfFile && !pdfArrayBuffer) {
     return (
@@ -152,6 +164,7 @@ const PDFViewer = ({ onPageClick, isPreviewMode = false }: PDFViewerProps) => {
                           pageNumber={pageNumber}
                           totalPages={numPages}
                           isPreviewMode={isPreviewMode}
+                          onSignatureActiveChange={onSignatureActiveChange}
                         />
                       ))}
                   </div>
@@ -183,6 +196,7 @@ interface SignatureOverlayProps {
   pageNumber: number;
   totalPages: number;
   isPreviewMode?: boolean;
+  onSignatureActiveChange?: (active: boolean) => void;
 }
 
 const SignatureOverlay = ({ 
@@ -196,7 +210,8 @@ const SignatureOverlay = ({
   containerWidth,
   pageNumber,
   totalPages,
-  isPreviewMode = false
+  isPreviewMode = false,
+  onSignatureActiveChange,
 }: SignatureOverlayProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -450,6 +465,13 @@ const SignatureOverlay = ({
       ? 'grabbing' 
       : 'grab',
   };
+
+
+  useEffect(() => {
+    if (onSignatureActiveChange) {
+      onSignatureActiveChange(isDragging || isResizing);
+    }
+  }, [isDragging, isResizing, onSignatureActiveChange]);
 
   return (
     <div

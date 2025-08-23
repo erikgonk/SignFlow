@@ -91,7 +91,8 @@ const SignatureToolbar = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gray-900 rounded-full shadow-2xl px-2 py-2 flex items-center space-x-1"
+        className="bg-primary-600 rounded-lg px-2 py-2 flex items-center space-x-2.5"
+        style={{ boxShadow: '0 0 10px 2px rgba(0,0,0,0.30)' }}
       >
         {toolbarButtons.map((button) => {
           const IconComponent = button.icon;
@@ -101,7 +102,7 @@ const SignatureToolbar = () => {
               onClick={() => handleToolbarButtonClick(button.id)}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              className="relative group p-3 rounded-full bg-transparent hover:bg-gray-700 text-white transition-all duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="relative group p-3 rounded-lg bg-primary-600 hover:bg-primary-700 text-white transition-all duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center shadow-md"
               title={button.description}
             >
               <IconComponent size={18} strokeWidth={2} />
@@ -109,7 +110,7 @@ const SignatureToolbar = () => {
               {/* Hover tooltip */}
               <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
                 {button.label}
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-gray-900"></div>
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-primary-600"></div>
               </div>
             </motion.button>
           );

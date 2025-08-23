@@ -201,13 +201,6 @@ const SignatureCreationModal = ({
     onClose();
   };
 
-  const clearDrawnSignature = () => {
-    if (signatureCanvasRef.current) {
-      signatureCanvasRef.current.clear();
-      setIsSignatureValid(false);
-    }
-  };
-
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     
