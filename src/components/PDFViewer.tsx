@@ -134,11 +134,11 @@ const PDFViewer = ({ onPageClick, isPreviewMode = false, onSignatureActiveChange
                   </div>
                   
                   <div
-                    onClick={(e) => handlePageClick(e, pageNumber)}
-                    className={`relative cursor-crosshair rounded shadow-sm ${
-                      isPreviewMode && hasSignatures 
-                        ? 'border-2 border-primary-500' 
-                        : 'border border-gray-200'
+                    onClick={isPreviewMode ? undefined : (e) => handlePageClick(e, pageNumber)}
+                    className={`relative rounded shadow-sm ${
+                      isPreviewMode
+                        ? (hasSignatures ? 'cursor-default border-2 border-primary-500' : 'cursor-default border border-gray-200')
+                        : 'cursor-crosshair border border-gray-200'
                     }`}
                   >
                     <Page
