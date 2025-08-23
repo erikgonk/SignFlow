@@ -26,6 +26,8 @@ const SignatureCreationModal = ({
   } = useSignFlowStore();
 
   const [activeTab, setActiveTab] = useState<'draw' | 'type' | 'upload'>('draw');
+  // Store last 3 drawn signatures (base64 strings)
+  const [recentDrawnSignatures, setRecentDrawnSignatures] = useState<string[]>([]);
   const signatureCanvasRef = useRef<SignatureCanvas>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -93,22 +95,22 @@ const SignatureCreationModal = ({
       case 'draw':
         if (signatureCanvasRef.current) {
           const canvas = signatureCanvasRef.current.getCanvas();
-          
-          // Check if canvas has any content
           const imageData = canvas.getContext('2d')?.getImageData(0, 0, canvas.width, canvas.height);
           const hasContent = imageData?.data.some((pixel, index) => index % 4 === 3 && pixel !== 0);
-          
           if (!hasContent) {
             alert('Please draw your signature before saving.');
             return;
           }
-          
           try {
             signatureData = canvas.toDataURL('image/png');
-            
             if (!signatureData || !signatureData.startsWith('data:image/png;base64,')) {
               throw new Error('Invalid signature data generated');
             }
+            // Save to recent signatures (max 3)
+            setRecentDrawnSignatures(prev => {
+              const updated = [signatureData, ...prev.filter(sig => sig !== signatureData)].slice(0, 3);
+              return updated;
+            });
           } catch (error) {
             console.error('Error saving drawn signature:', error);
             alert('Failed to save signature. Please try again.');
@@ -116,38 +118,31 @@ const SignatureCreationModal = ({
           }
         }
         break;
-
       case 'type':
         if (!typedSignature.trim()) {
           alert('Please enter your signature text.');
           return;
         }
-        
         try {
           // Create a canvas to render the typed signature
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-          
           if (!ctx) {
             throw new Error('Could not create canvas context');
           }
-          
+          // Use a more natural aspect ratio for typed signatures
           canvas.width = 400;
-          canvas.height = 100;
-          
+          canvas.height = 150;
           // Clear background
           ctx.fillStyle = 'white';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
-          
           // Draw text
           ctx.fillStyle = 'black';
           ctx.font = '32px cursive';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(typedSignature.trim(), canvas.width / 2, canvas.height / 2);
-          
           signatureData = canvas.toDataURL('image/png');
-          
           if (!signatureData || !signatureData.startsWith('data:image/png;base64,')) {
             throw new Error('Invalid signature data generated');
           }
@@ -157,7 +152,6 @@ const SignatureCreationModal = ({
           return;
         }
         break;
-
       case 'upload':
         // This will be handled by the file input change event
         alert('Please select an image file first.');
@@ -359,22 +353,48 @@ const SignatureCreationModal = ({
                     }}
                   />
                 </div>
-                <div className="flex justify-between">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    if (signatureCanvasRef.current) {
+                      signatureCanvasRef.current.clear();
+                      setIsSignatureValid(false);
+                    }
+                  }}
+                  className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Clear
+                </button>
+                {/* Recent signatures preview */}
+                {recentDrawnSignatures.map((sig, idx) => (
                   <button
+                    key={idx}
                     onClick={() => {
+                      // Load this signature into the canvas
                       if (signatureCanvasRef.current) {
-                        signatureCanvasRef.current.clear();
-                        setIsSignatureValid(false);
+                        const canvas = signatureCanvasRef.current.getCanvas();
+                        const ctx = canvas.getContext('2d');
+                        const img = new window.Image();
+                        img.onload = () => {
+                          ctx?.clearRect(0, 0, canvas.width, canvas.height);
+                          ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+                          setIsSignatureValid(true);
+                        };
+                        img.src = sig;
                       }
                     }}
-                    className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="border border-gray-300 rounded-lg w-12 h-8 bg-white flex items-center justify-center hover:border-primary-400 transition-all"
+                    title={`Use previous signature #${idx+1}`}
                   >
-                    Clear
+                    <img src={sig} alt={`Recent signature ${idx+1}`} className="max-w-full max-h-full" />
                   </button>
-                  <p className="text-sm text-gray-500 self-center">
-                    Draw your signature above
-                  </p>
-                </div>
+                ))}
+              </div>
+              <p className="text-sm text-gray-500 self-center">
+                Draw your signature above
+              </p>
+            </div>
               </div>
             )}
 
