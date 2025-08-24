@@ -102,9 +102,9 @@ const SignatureToolbar = () => {
               // whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               className="relative group p-3 rounded-lg 
-                        bg-black/50 backdrop-blur-md
+                        bg-primary-500 backdrop-blur-md
                         text-white/80 
-                        hover:bg-black/65 hover:shadow-lg
+                        hover:bg-primary-600 hover:shadow-lg
                         transition-all duration-200 
                         min-w-[44px] min-h-[44px]
                         flex items-center justify-center

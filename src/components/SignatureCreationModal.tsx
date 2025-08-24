@@ -87,8 +87,7 @@ const SignatureCreationModal = ({
   useEffect(() => {
     if (!isOpen) return;
     const handleEnter = (event: KeyboardEvent) => {
-      // Only handle Enter for draw tab
-      if ((event.key === 'Enter' || event.key === 'NumpadEnter') && isSignatureValid && activeTab === 'draw') {
+      if ((event.key === 'Enter' || event.key === 'NumpadEnter') && isSignatureValid && activeTab !== 'upload') {
         event.preventDefault();
         handleSave();
       }
@@ -316,7 +315,7 @@ const SignatureCreationModal = ({
               className={`flex-1 px-4 py-3 text-sm font-medium transition-colors focus:outline-none focus:ring-0 active:outline-none active:ring-0 ${
                 activeTab === 'type'
                   ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50 border-none'
-                  : 'text-gray-500 hover:text-gray-700 border-none'
+                  : 'text-gray-500 hover:text-gray-700 border-none' 
               }`}
               style={{ boxShadow: 'none' }}
             >
@@ -422,15 +421,6 @@ const SignatureCreationModal = ({
                     type="text"
                     value={typedSignature}
                     onChange={(e) => setTypedSignature(e.target.value)}
-                    onKeyDown={(e) => {
-                      if ((e.key === 'Enter' || e.key === 'NumpadEnter') && !!e.currentTarget.value.trim()) {
-                        e.preventDefault();
-                        setTypedSignature(e.currentTarget.value);
-                        setTimeout(() => {
-                          handleSave();
-                        }, 0);
-                      }
-                    }}
                     placeholder="Your Name"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     autoFocus
