@@ -96,11 +96,11 @@ const SigningView = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 px-2 sm:px-0">
-      {/* Header */}
+      {/* Desktop Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 p-4"
+        className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 p-4 hidden md:block"
       >
         <div className="w-full max-w-full sm:max-w-6xl mx-auto flex items-center justify-between px-2 sm:px-8">
           <div className="flex items-center space-x-4">
@@ -111,19 +111,13 @@ const SigningView = () => {
               <ArrowLeft size={20} />
               <span>Back</span>
             </button>
-            
             <div className="border-l border-gray-300 pl-4">
               <h1 className="text-xl md:text-2xl font-bold text-gray-900 select-none" style={{ letterSpacing: '-0.02em' }}>
                 Sign<span className="text-primary-600">Flow</span>
               </h1>
             </div>
           </div>
-          
           <div className="flex items-center space-x-4">
-            {/* <div className="text-sm text-gray-600">
-              {signatures.length} signature{signatures.length !== 1 ? 's' : ''} placed
-            </div> */}
-            
             <button
               onClick={handleProceedToPreview}
               disabled={!canProceed}
@@ -139,6 +133,13 @@ const SigningView = () => {
           </div>
         </div>
       </motion.div>
+
+      {/* Mobile Header */}
+      <div className="md:hidden pt-4 pb-2 flex flex-col items-center">
+        <h1 className="text-xl font-bold text-gray-900 select-none text-center" style={{ letterSpacing: '-0.02em' }}>
+          <span className="text-primary-600">SignFlow</span>
+        </h1>
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 pb-32">
@@ -189,8 +190,30 @@ const SigningView = () => {
         </div>
       </div>
 
-      {/* Signature Toolbar */}
-      <div className="fixed bottom-6 left-0 right-0 z-50 pointer-events-none">
+      {/* Mobile Bottom Bar */}
+      <div className="fixed bottom-6 left-0 right-0 z-50 md:hidden px-4 flex items-center justify-between pointer-events-none">
+        <button
+          onClick={handleBackToLanding}
+          className="pointer-events-auto p-3 rounded-lg bg-black/50 backdrop-blur-md text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-0 focus:border-none focus:border-transparent"
+          title="Go Back"
+        >
+          <ArrowLeft size={20} />
+        </button>
+        <div className="flex-1 mt-6 flex justify-center pointer-events-auto">
+          <SignatureToolbar />
+        </div>
+        <button
+          onClick={handleProceedToPreview}
+          disabled={!canProceed}
+          className={`pointer-events-auto p-3 rounded-lg bg-black/50 backdrop-blur-md text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-0 focus:border-none focus:border-transparent ${canProceed ? 'hover:bg-black/65 hover:shadow-lg' : 'opacity-50 cursor-not-allowed'}`}
+          title="Download"
+        >
+          <Download size={20} />
+        </button>
+      </div>
+
+      {/* Desktop Signature Toolbar */}
+      <div className="fixed bottom-6 left-0 right-0 z-50 hidden md:block pointer-events-none">
         <div className="pointer-events-auto">
           <SignatureToolbar />
         </div>
