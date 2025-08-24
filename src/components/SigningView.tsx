@@ -8,7 +8,6 @@ import SignatureCreationModal from './SignatureCreationModal';
 
 const SigningView = () => {
   const {
-    pdfFile,
     signatures,
     showSignaturePopup,
     popupPosition,

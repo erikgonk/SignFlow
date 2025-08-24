@@ -5,9 +5,36 @@ import SigningView from './components/SigningView';
 import PreviewView from './components/PreviewView';
 import AppErrorBoundary from './components/AppErrorBoundary';
 import { PDFTest } from './components/PDFTest';
+import { useEffect } from 'react';
 
 function App() {
   const currentView = useSignFlowStore((state) => state.currentView);
+
+  useEffect(() => {  
+  const handlePopState = () => {  
+    const currentPath = window.location.pathname;  
+    const expectedPath = currentView === 'landing' ? '/' :   
+                        currentView === 'signing' ? '/signing' : '/preview';  
+      
+    if (currentPath !== expectedPath) {  
+      // Correct the URL to match current state  
+      window.history.replaceState({}, '', expectedPath);  
+    }  
+  };  
+  
+  window.addEventListener('popstate', handlePopState);  
+  return () => window.removeEventListener('popstate', handlePopState);  
+}, [currentView]);
+
+// On app load, ensure URL matches the current view  
+useEffect(() => {  
+  const expectedPath = currentView === 'landing' ? '/' :   
+                      currentView === 'signing' ? '/signing' : '/preview';  
+    
+  if (window.location.pathname !== expectedPath) {  
+    window.history.replaceState({}, '', expectedPath);  
+  }  
+}, []); // Run once on mount
 
   // Temporarily show test component
   const showTest = false; // Set to true to test PDF loading

@@ -20,7 +20,6 @@ const SignatureCreationModal = ({
     setTypedSignature,
     addSignature,
     activeSignatureType,
-    setDrawnSignature,
     setUploadedSignature,
     setIsPlacingSignature,
   } = useSignFlowStore();
