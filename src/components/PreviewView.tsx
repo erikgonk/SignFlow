@@ -23,6 +23,7 @@ const PreviewView = () => {
   
   const {
     pdfFile,
+    pdfFileName,
     pdfDataUrl,
     signatures,
     setCurrentView,
@@ -38,12 +39,12 @@ const PreviewView = () => {
   };
 
   const handleDownload = async () => {
-    if (!pdfDataUrl || !pdfFile) {
+    if (!pdfDataUrl) {
       console.error('No PDF data available for download');
       alert('No PDF file available. Please upload a PDF first.');
       return;
     }
-    
+      
     setIsGenerating(true);
     
     try {
@@ -233,7 +234,8 @@ const PreviewView = () => {
       
       const link = document.createElement('a');
       link.href = url;
-      link.download = `signed_${pdfFile.name}`;
+      const fileName = pdfFile?.name || pdfFileName || 'document.pdf';
+      link.download = `signed_${fileName}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

@@ -87,7 +87,8 @@ const SignatureCreationModal = ({
   useEffect(() => {
     if (!isOpen) return;
     const handleEnter = (event: KeyboardEvent) => {
-      if ((event.key === 'Enter' || event.key === 'NumpadEnter') && isSignatureValid && activeTab !== 'upload') {
+      // Only handle Enter for draw tab
+      if ((event.key === 'Enter' || event.key === 'NumpadEnter') && isSignatureValid && activeTab === 'draw') {
         event.preventDefault();
         handleSave();
       }
@@ -421,6 +422,15 @@ const SignatureCreationModal = ({
                     type="text"
                     value={typedSignature}
                     onChange={(e) => setTypedSignature(e.target.value)}
+                    onKeyDown={(e) => {
+                      if ((e.key === 'Enter' || e.key === 'NumpadEnter') && !!e.currentTarget.value.trim()) {
+                        e.preventDefault();
+                        setTypedSignature(e.currentTarget.value);
+                        setTimeout(() => {
+                          handleSave();
+                        }, 0);
+                      }
+                    }}
                     placeholder="Your Name"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     autoFocus

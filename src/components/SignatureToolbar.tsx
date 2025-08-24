@@ -74,7 +74,7 @@ const SignatureToolbar = () => {
       id: 'upload',
       label: 'Upload',
       icon: Upload,
-      description: 'Upload signature image',
+      description: 'Upload your signature',
     },
   ] as const;
 
@@ -99,7 +99,7 @@ const SignatureToolbar = () => {
             <motion.button
               key={button.id}
               onClick={() => handleToolbarButtonClick(button.id)}
-              whileHover={{ scale: 1.1 }}
+              // whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               className="relative group p-3 rounded-lg 
                         bg-black/50 backdrop-blur-md
@@ -114,10 +114,10 @@ const SignatureToolbar = () => {
               <IconComponent size={18} strokeWidth={2} />
               
               {/* Hover tooltip */}
-              <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-black/65 text-white text-xs px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
+              {/* <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-black/65 text-white text-xs px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
                 {button.label}
                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-black/65"></div>
-              </div>
+              </div> */}
             </motion.button>
           );
         })}
