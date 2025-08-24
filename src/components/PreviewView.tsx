@@ -374,22 +374,6 @@ const PreviewView = () => {
 
           {/* PDF Preview */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-4 border-b border-gray-200 bg-gray-50">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-medium text-gray-900">Final Document Preview</h3>
-                  <p className="text-sm text-gray-600 mt-1">
-                    This is how your signed document will look
-                  </p>
-                </div>
-                {signatures.length > 0 && (
-                  <div className="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border">
-                    💡 Hover over signatures to edit them
-                  </div>
-                )}
-              </div>
-            </div>
-            
             <div className="p-6">
               <PDFViewer onPageClick={() => {}} isPreviewMode={true} />
             </div>

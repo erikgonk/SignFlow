@@ -92,7 +92,7 @@ const PDFViewer = ({ onPageClick, isPreviewMode = false, onSignatureActiveChange
   }
 
   return (
-    <div className="flex flex-col items-center space-y-6">
+    <div className="flex flex-col items-center">
       {/* Show PDF file name if available */}
       {pdfFileName && (
         <div className="text-lg font-semibold text-gray-700 mt-2 mb-2" data-testid="pdf-file-name">
@@ -132,7 +132,7 @@ const PDFViewer = ({ onPageClick, isPreviewMode = false, onSignatureActiveChange
               const pageNumber = index + 1;
               const hasSignatures = signatures.some(sig => sig.pageNumber === pageNumber);
               return (
-                <div key={`page_${pageNumber}`} className="relative mb-4">
+                <div key={`page_${pageNumber}`} className={`relative${pageNumber === numPages ? '' : ' mb-4'}`}>
                   {/* Page number indicator */}
                   <div className="absolute -top-6 left-0 z-20 bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
                     Page {pageNumber} of {numPages}
@@ -178,9 +178,13 @@ const PDFViewer = ({ onPageClick, isPreviewMode = false, onSignatureActiveChange
         </PDFErrorBoundary>
       </div>
       {numPages > 1 && (
-        <p className="text-gray-600 text-sm">
-          Showing {numPages} page{numPages !== 1 ? 's' : ''} • Drag signatures between pages
-        </p>
+        !isPreviewMode ? (
+          <div className="flex justify-center items-center" style={{ marginTop: '16px', marginBottom: '-10px' }}>
+            <p className="text-gray-600 text-sm">
+              Showing {numPages} page{numPages !== 1 ? 's' : ''} • Drag signatures between pages
+            </p>
+          </div>
+        ) : null
       )}
     </div>
   );
