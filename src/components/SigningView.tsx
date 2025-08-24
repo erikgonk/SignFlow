@@ -194,7 +194,7 @@ const SigningView = () => {
       <div className="fixed bottom-6 left-0 right-0 z-50 md:hidden px-4 flex items-center justify-between pointer-events-none">
         <button
           onClick={handleBackToLanding}
-          className="pointer-events-auto p-3 rounded-lg bg-primary-500 hover:bg-primary-600 backdrop-blur-md text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-0 focus:border-none focus:border-transparent"
+          className="pointer-events-auto p-3 rounded-lg bg-primary-500 hover:bg-primary-00 backdrop-blur-md text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-0 focus:border-none focus:border-transparent"
           title="Go Back"
         >
           <ArrowLeft size={20} />
@@ -205,8 +205,10 @@ const SigningView = () => {
         <button
           onClick={handleProceedToPreview}
           disabled={!canProceed}
-          className={`pointer-events-auto p-3 rounded-lg bg-primary-500 hover:bg-primary-600 backdrop-blur-md text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-0 focus:border-none focus:border-transparent ${canProceed ? 'hover:bg-black/65 hover:shadow-lg' : 'opacity-50 cursor-not-allowed'}`}
-          title="Download"
+          className={`pointer-events-auto p-3 rounded-lg bg-primary-500 hover:bg-primary-00 backdrop-blur-md text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-0 focus:border-none focus:border-transparent ${canProceed ? 'hover:bg-primary-700 hover:shadow-lg' : 'opacity-50 cursor-not-allowed'}`}
+          title={signatures.length === 0
+      ? 'Add Signature to enable Download'
+      : 'Preview & Download'}
         >
           <Download size={20} />
         </button>
