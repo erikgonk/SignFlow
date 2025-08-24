@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useRef } from 'react';
 import { Document, Page } from 'react-pdf';
 import useSignFlowStore from '../store/useSignFlowStore';
 import type { Signature } from '../store/useSignFlowStore';
@@ -12,7 +13,27 @@ interface PDFViewerProps {
 
 const PDFViewer = ({ onPageClick, isPreviewMode = false, onSignatureActiveChange }: PDFViewerProps) => {
   const [numPages, setNumPages] = useState<number>(0);
-  const [pageWidth, setPageWidth] = useState<number>(600);
+  const [pageWidth, setPageWidth] = useState<number>(
+    typeof window !== 'undefined'
+      ? Math.min(window.innerWidth - 32, 600)
+      : 600
+  );
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Responsive width update
+  useEffect(() => {
+    function updateWidth() {
+      if (containerRef.current) {
+        const width = containerRef.current.offsetWidth;
+        setPageWidth(Math.min(width, 600));
+      } else {
+        setPageWidth(Math.min(window.innerWidth - 32, 600));
+      }
+    }
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
   
   const { pdfDataUrl, pdfFile, pdfFileName, pdfArrayBuffer, signatures, selectedSignature, updateSignature, removeSignature, setSelectedSignature } = useSignFlowStore();
 
@@ -92,7 +113,7 @@ const PDFViewer = ({ onPageClick, isPreviewMode = false, onSignatureActiveChange
   }
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center w-full" ref={containerRef}>
       {/* Show PDF file name if available */}
       {pdfFileName && (
         <div className="text-lg font-semibold text-gray-700 mt-2 mb-2" data-testid="pdf-file-name">
@@ -233,6 +254,31 @@ const SignatureOverlay = ({
 
   const edgeThreshold = 8; // Pixel area around edges for resize detection
 
+  // Mouse down handler for dragging/resizing
+
+  // Mouse down handler for dragging/resizing
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    // In preview mode, always select on first interaction
+    if (isPreviewMode) {
+      onSelect();
+    } else if (!isSelected) {
+      onSelect();
+      return;
+    }
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+    if (activeEdge) {
+      setIsResizing(true);
+      setDragStart({ x: clientX, y: clientY });
+      setInitialSignature({ x: signature.x, y: signature.y, width: signature.width, height: signature.height });
+    } else {
+      setIsDragging(true);
+      setDragStart({ x: clientX, y: clientY });
+      setInitialSignature({ x: signature.x, y: signature.y, width: signature.width, height: signature.height });
+    }
+  };
+
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     // In preview mode, only detect edges when hovering
     if (isPreviewMode && !isHovered) return;
@@ -284,38 +330,98 @@ const SignatureOverlay = ({
     }
   }, [isPreviewMode, isHovered, isSelected, isDragging, isResizing]);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  // Touch support for mobile
+  // Touch support for mobile
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     e.stopPropagation();
-    
+    // Prevent scrolling while dragging/resizing
+    e.preventDefault();
+    // Add passive event listener blocker for touchmove
+    document.body.style.overflow = 'hidden';
+    const touch = e.touches[0];
     // In preview mode, always select on first interaction
     if (isPreviewMode) {
       onSelect();
     } else if (!isSelected) {
       onSelect();
-      return; // Don't start drag/resize until selected
+      return;
     }
-    
+    const clientX = touch.clientX;
+    const clientY = touch.clientY;
     if (activeEdge) {
-      // Start resizing
       setIsResizing(true);
-      setDragStart({ x: e.clientX, y: e.clientY });
-      setInitialSignature({ 
-        x: signature.x, 
-        y: signature.y, 
-        width: signature.width, 
-        height: signature.height 
-      });
+      setDragStart({ x: clientX, y: clientY });
+      setInitialSignature({ x: signature.x, y: signature.y, width: signature.width, height: signature.height });
     } else {
-      // Start dragging
       setIsDragging(true);
-      setDragStart({ x: e.clientX, y: e.clientY });
-      setInitialSignature({ 
-        x: signature.x, 
-        y: signature.y, 
-        width: signature.width, 
-        height: signature.height 
-      });
+      setDragStart({ x: clientX, y: clientY });
+      setInitialSignature({ x: signature.x, y: signature.y, width: signature.width, height: signature.height });
     }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isDragging && !(isResizing && activeEdge)) return;
+    // Prevent scrolling while dragging/resizing
+    e.preventDefault();
+    const touch = e.touches[0];
+    const clientX = touch.clientX;
+    const clientY = touch.clientY;
+    if (isDragging) {
+      const deltaX = (clientX - dragStart.x) / containerWidth;
+      const deltaY = (clientY - dragStart.y) / containerWidth;
+      let newX = initialSignature.x + deltaX;
+      let newY = initialSignature.y + deltaY;
+      let targetPageNumber = pageNumber;
+      if (newY < 0 && pageNumber > 1) {
+        targetPageNumber = pageNumber - 1;
+        newY = 1 + newY;
+      } else if (newY + signature.height > 1 && pageNumber < totalPages) {
+        targetPageNumber = pageNumber + 1;
+        newY = newY - 1;
+      }
+      newX = Math.max(0, Math.min(1 - signature.width, newX));
+      newY = Math.max(0, Math.min(1 - signature.height, newY));
+      if (targetPageNumber !== pageNumber) {
+        onPageChange(targetPageNumber);
+      }
+      onMove(newX, newY);
+    } else if (isResizing && activeEdge) {
+      const deltaX = (clientX - dragStart.x) / containerWidth;
+      const deltaY = (clientY - dragStart.y) / containerWidth;
+      let newX = initialSignature.x;
+      let newY = initialSignature.y;
+      let newWidth = initialSignature.width;
+      let newHeight = initialSignature.height;
+      const minSize = 0.05;
+      if (activeEdge.includes('right')) {
+        newWidth = Math.max(minSize, Math.min(1 - newX, initialSignature.width + deltaX));
+      }
+      if (activeEdge.includes('bottom')) {
+        newHeight = Math.max(minSize, Math.min(1 - newY, initialSignature.height + deltaY));
+      }
+      if (activeEdge.includes('left')) {
+        const widthChange = -deltaX;
+        const maxWidthChange = Math.min(widthChange, 1 - initialSignature.width);
+        newWidth = Math.max(minSize, initialSignature.width + maxWidthChange);
+        newX = Math.max(0, initialSignature.x - maxWidthChange);
+      }
+      if (activeEdge.includes('top')) {
+        const heightChange = -deltaY;
+        const maxHeightChange = Math.min(heightChange, 1 - initialSignature.height);
+        newHeight = Math.max(minSize, initialSignature.height + maxHeightChange);
+        newY = Math.max(0, initialSignature.y - maxHeightChange);
+      }
+      onMove(newX, newY);
+      onResize(newWidth, newHeight);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    setIsResizing(false);
+    setActiveEdge(null);
+    // Restore scrolling after drag/resize ends
+    document.body.style.overflow = '';
   };
 
   const handleGlobalMouseMove = useCallback((e: MouseEvent) => {
@@ -484,6 +590,9 @@ const SignatureOverlay = ({
       style={style}
       onMouseDown={isPreviewMode ? (isHovered ? handleMouseDown : undefined) : handleMouseDown}
       onMouseMove={isPreviewMode ? (isHovered ? handleMouseMove : undefined) : handleMouseMove}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={`group border-2 transition-all duration-200 ${
