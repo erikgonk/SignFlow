@@ -1,3 +1,5 @@
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
 import { createRoot } from 'react-dom/client'
 import './utils/pdfSetup' // Initialize PDF.js early
 import './index.css'

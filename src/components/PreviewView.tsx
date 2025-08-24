@@ -278,23 +278,20 @@ const PreviewView = () => {
         animate={{ opacity: 1, y: 0 }}
         className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 p-4"
       >
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-8">
           <div className="flex items-center space-x-4">
             <button
               onClick={handleBackToSigning}
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeft size={20} />
-              <span>Back to Signing</span>
+              <span>Back</span>
             </button>
             
             <div className="border-l border-gray-300 pl-4">
-              <h1 className="text-xl font-semibold text-gray-900">
-                Preview & Download
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900 select-none" style={{ letterSpacing: '-0.02em' }}>
+                Sign<span className="text-primary-600">Flow</span>
               </h1>
-              {pdfFile && (
-                <p className="text-sm text-gray-600">{pdfFile.name}</p>
-              )}
             </div>
           </div>
           

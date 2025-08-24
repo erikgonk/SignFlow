@@ -125,11 +125,9 @@ const useSignFlowStore = create<SignFlowState>((set) => ({
   setPdfFile: (file: File | null) => {
     if (file) {
       if (file.type !== 'application/pdf') {
-        alert('Please select a PDF file.');
         return;
       }
       if (file.size > 50 * 1024 * 1024) {
-        alert('File size too large. Please select a PDF smaller than 50MB.');
         return;
       }
       const dataUrlReader = new FileReader();

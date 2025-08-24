@@ -19,7 +19,7 @@ function App() {
     if (currentPath !== expectedPath) {  
       // Correct the URL to match current state  
       window.history.replaceState({}, '', expectedPath);  
-    }  
+    }
   };  
   
   window.addEventListener('popstate', handlePopState);  
