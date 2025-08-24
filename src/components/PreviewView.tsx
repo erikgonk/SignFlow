@@ -273,12 +273,26 @@ const PreviewView = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+    <div className="min-h-screen bg-gray-50 relative">
+      {/* Mobile Header */}
+      <div className="md:hidden pt-4 pb-2 flex items-center justify-center px-6 relative">
+        <button
+          onClick={handleStartOver}
+          className="absolute left-6 top-4 px-3 py-2 rounded-lg text-gray-600 hover:text-gray-900 bg-white shadow-sm border border-gray-200"
+        >
+          <RotateCcw size={18} />
+        </button>
+        <div className="flex-1 flex justify-center">
+          <h1 className="text-xl font-bold select-none text-center" style={{ letterSpacing: '-0.02em' }}>
+            <span className="text-gray-900">Sign</span><span className="text-primary-600">Flow</span>
+          </h1>
+        </div>
+      </div>
+      {/* Desktop Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 p-4"
+        className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 p-4 hidden md:block"
       >
         <div className="max-w-6xl mx-auto flex items-center justify-between px-8">
           <div className="flex items-center space-x-4">
@@ -289,14 +303,12 @@ const PreviewView = () => {
               <ArrowLeft size={20} />
               <span>Back</span>
             </button>
-            
             <div className="border-l border-gray-300 pl-4">
               <h1 className="text-xl md:text-2xl font-bold text-gray-900 select-none" style={{ letterSpacing: '-0.02em' }}>
                 Sign<span className="text-primary-600">Flow</span>
               </h1>
             </div>
           </div>
-          
           <div className="flex items-center space-x-3">
             <button
               onClick={handleStartOver}
@@ -305,7 +317,6 @@ const PreviewView = () => {
               <RotateCcw size={16} />
               <span>Start Over</span>
             </button>
-            
             <button
               onClick={handleDownload}
               disabled={isGenerating || signatures.length === 0}
@@ -318,6 +329,7 @@ const PreviewView = () => {
                   ? 'bg-primary-600 text-white hover:bg-primary-700 shadow-sm'
                   : 'bg-gray-200 text-gray-500 cursor-not-allowed'
               }`}
+              title={signatures.length === 0 ? 'Add Signature to enable Download' : 'Download signed PDF'}
             >
               {downloadComplete ? (
                 <>
@@ -339,9 +351,8 @@ const PreviewView = () => {
           </div>
         </div>
       </motion.div>
-
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto p-6">
+      <div className="w-full max-w-full sm:max-w-6xl mx-auto p-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -364,7 +375,6 @@ const PreviewView = () => {
                   </p>
                 </div>
               </div>
-              
               <div className="text-right">
                 <div className="text-sm text-gray-500 mb-1">File size</div>
                 <div className="font-medium text-gray-900">
@@ -373,33 +383,73 @@ const PreviewView = () => {
               </div>
             </div>
           </div>
-
           {/* PDF Preview */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6">
               <PDFViewer onPageClick={() => {}} isPreviewMode={true} />
             </div>
           </div>
-
           {/* Security Notice */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-start space-x-3">
-              <div className="flex-shrink-0">
-                <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">
-                  🔒
+          <div className="flex flex-col gap-2">
+            <div className="bg-green-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">
+                    🔒
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-medium text-blue-900 mb-1">Secure Processing</h4>
                 </div>
               </div>
-              <div>
-                <h4 className="font-medium text-blue-900 mb-1">Secure Processing</h4>
-                <p className="text-sm text-blue-800">
-                  Your document is processed entirely in your browser. 
-                  No files are uploaded to servers, ensuring complete privacy and security.
-                </p>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">
+                    🚀
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-medium text-blue-900 mb-1">Quick Download</h4>
+                </div>
+              </div>
+            </div>
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  <div className="w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs">
+                    💡
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-medium text-purple-900 mb-1">Smart Fill Detection</h4>
+                </div>
               </div>
             </div>
           </div>
         </motion.div>
       </div>
+      {/* Mobile Bottom Bar */}
+      <div className="fixed bottom-7 left-0 right-0 z-50 md:hidden px-6 flex items-center justify-between pointer-events-none">
+        <button
+          onClick={handleBackToSigning}
+          className="pointer-events-auto p-3 rounded-lg bg-primary-500 hover:bg-primary-00 backdrop-blur-md text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-0 focus:border-none focus:border-transparent"
+          title="Go Back"
+        >
+          <ArrowLeft size={20} />
+        </button>
+        <button
+          onClick={handleDownload}
+          disabled={isGenerating || signatures.length === 0}
+          className={`pointer-events-auto p-3 rounded-lg bg-primary-500 hover:bg-primary-00 backdrop-blur-md text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-0 focus:border-none focus:border-transparent ${signatures.length > 0 ? 'hover:bg-primary-700 hover:shadow-lg' : 'opacity-50 cursor-not-allowed'}`}
+          title={signatures.length === 0 ? 'Add Signature to enable Download' : 'Download signed PDF'}
+        >
+          <Download size={20} />
+        </button>
+      </div>
+      {/* Notification message (if needed) */}
+      {/* ...existing code for notification... */}
     </div>
   );
 };

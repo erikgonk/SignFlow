@@ -136,14 +136,14 @@ const SigningView = () => {
 
       {/* Mobile Header */}
       <div className="md:hidden pt-4 pb-2 flex flex-col items-center">
-        <h1 className="text-xl font-bold text-gray-900 select-none text-center" style={{ letterSpacing: '-0.02em' }}>
-          <span className="text-primary-600">SignFlow</span>
+        <h1 className="text-xl font-bold select-none text-center" style={{ letterSpacing: '-0.02em' }}>
+          <span className="text-gray-900">Sign</span><span className="text-primary-600">Flow</span>
         </h1>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 pb-32">
-        <div className="w-full max-w-full sm:max-w-6xl mx-auto px-0 sm:px-6">
+        <div className="w-full max-w-full sm:max-w-6xl mx-auto p-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -191,7 +191,7 @@ const SigningView = () => {
       </div>
 
       {/* Mobile Bottom Bar */}
-      <div className="fixed bottom-6 left-0 right-0 z-50 md:hidden px-4 flex items-center justify-between pointer-events-none">
+      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden px-8 flex items-center justify-between pointer-events-none">
         <button
           onClick={handleBackToLanding}
           className="pointer-events-auto p-3 rounded-lg bg-primary-500 hover:bg-primary-00 backdrop-blur-md text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-0 focus:border-none focus:border-transparent"
@@ -205,12 +205,15 @@ const SigningView = () => {
         <button
           onClick={handleProceedToPreview}
           disabled={!canProceed}
-          className={`pointer-events-auto p-3 rounded-lg bg-primary-500 hover:bg-primary-00 backdrop-blur-md text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-0 focus:border-none focus:border-transparent ${canProceed ? 'hover:bg-primary-700 hover:shadow-lg' : 'opacity-50 cursor-not-allowed'}`}
+          className={`pointer-events-auto p-3 rounded-lg bg-primary-500 hover:bg-primary-700 backdrop-blur-md text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-0 focus:border-none focus:border-transparent ${canProceed ? 'hover:bg-primary-700 hover:shadow-lg' : 'opacity-50 cursor-not-allowed'}`}
           title={signatures.length === 0
       ? 'Add Signature to enable Download'
       : 'Preview & Download'}
         >
-          <Download size={20} />
+          {/* Reverse style: visually matches back button, icon points right */}
+          <div className="flex items-center justify-center rotate-180">
+            <ArrowLeft size={20} />
+          </div>
         </button>
       </div>
 
