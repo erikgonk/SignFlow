@@ -95,14 +95,14 @@ const SigningView = () => {
   const canProceed = signatures.length > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 px-2 sm:px-0">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 p-4"
       >
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-8">
+        <div className="w-full max-w-full sm:max-w-6xl mx-auto flex items-center justify-between px-2 sm:px-8">
           <div className="flex items-center space-x-4">
             <button
               onClick={handleBackToLanding}
@@ -120,9 +120,9 @@ const SigningView = () => {
           </div>
           
           <div className="flex items-center space-x-4">
-            <div className="text-sm text-gray-600">
+            {/* <div className="text-sm text-gray-600">
               {signatures.length} signature{signatures.length !== 1 ? 's' : ''} placed
-            </div>
+            </div> */}
             
             <button
               onClick={handleProceedToPreview}
@@ -142,7 +142,7 @@ const SigningView = () => {
 
       {/* Main Content */}
       <div className="flex-1 pb-32">
-        <div className="max-w-6xl mx-auto p-6">
+        <div className="w-full max-w-full sm:max-w-6xl mx-auto px-0 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -150,7 +150,7 @@ const SigningView = () => {
             className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
           >
             {/* Instructions */}
-            <div className="p-6 border-b border-gray-200 bg-blue-50">
+            <div className="px-0 sm:px-6 py-6 border-b border-gray-200 bg-blue-50">
               <div className="flex items-start space-x-3">
                 <div className="flex-shrink-0 w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
                   {isPlacingSignature
@@ -172,7 +172,7 @@ const SigningView = () => {
                     {isPlacingSignature
                       ? 'Click anywhere on the document to place your prepared signature at that location.'
                       : signatures.length > 0
-                      ? 'Click on any signature to select it. Drag to move, use the resize handle in the bottom-right corner, or click the × to delete. Use the toolbar below to add more signatures.'
+                      ? 'Click on any signature to select it. Drag to move, use the resize handles on the corners, or click the × to delete.'
                       : 'Use the toolbar buttons below to create your signature, or click directly on the document to open the signature creation popup.'
                     }
                   </p>
@@ -181,7 +181,7 @@ const SigningView = () => {
             </div>
 
             {/* PDF Viewer */}
-            <div className="p-6">
+            <div className="px-0 sm:px-6 py-6">
               {/* File size display removed, only show on preview screen */}
               <PDFViewer onPageClick={handlePageClick} onSignatureActiveChange={setIsSignatureActive} />
             </div>
