@@ -84,11 +84,25 @@ const SignatureCreationModal = ({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
+  // Handle enter key to add signature if enabled
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEnter = (event: KeyboardEvent) => {
+      if ((event.key === 'Enter' || event.key === 'NumpadEnter') && isSignatureValid && activeTab !== 'upload') {
+        event.preventDefault();
+        handleSave();
+      }
+    };
+    document.addEventListener('keydown', handleEnter);
+    return () => document.removeEventListener('keydown', handleEnter);
+  }, [isOpen, isSignatureValid, activeTab]);
+
   const handleSave = () => {
     let signatureData = '';
-    // Always reset draw validity before checking
-    if (activeTab === 'draw') {
-      setIsSignatureValid(false);
+    // Only reset draw validity if saving and not valid
+    if (activeTab === 'draw' && !isSignatureValid) {
+      alert('Please draw your signature before saving.');
+      return;
     }
 
     switch (activeTab) {
@@ -159,28 +173,18 @@ const SignatureCreationModal = ({
     }
 
     if (signatureData) {
-      if (clickPosition) {
-        // Place signature immediately at the clicked position
-        addSignature({
-          type: activeTab,
-          x: clickPosition.x - 0.1,
-          y: clickPosition.y - 0.05,
-          width: 0.2,
-          height: 0.1,
-          data: signatureData,
-          pageNumber: clickPosition.pageNumber,
-        });
-        handleClose();
-      } else {
-        // Store signature data and enable placement mode
-        if (activeTab === 'draw' || activeTab === 'type') {
-          setDrawnSignature(signatureData);
-        } else if (activeTab === 'upload') {
-          setUploadedSignature(signatureData);
-        }
-        setIsPlacingSignature(true);
-        handleClose();
-      }
+      // Always add signature immediately
+      const position = clickPosition || { x: 0.4, y: 0.45, pageNumber: 1 };
+      addSignature({
+        type: activeTab,
+        x: position.x - 0.1,
+        y: position.y - 0.05,
+        width: 0.2,
+        height: 0.1,
+        data: signatureData,
+        pageNumber: position.pageNumber,
+      });
+      handleClose();
     }
   };
 
@@ -250,6 +254,13 @@ const SignatureCreationModal = ({
     }
   };
 
+  useEffect(() => {
+    // Reset signature validity when switching tabs
+    if (activeTab === 'draw' || activeTab === 'type') {
+      setIsSignatureValid(false);
+    }
+  }, [activeTab]);
+
   if (!isOpen) return null;
 
   return (
@@ -290,33 +301,36 @@ const SignatureCreationModal = ({
           <div className="flex border-b border-gray-200">
             <button
               onClick={() => setActiveTab('draw')}
-              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors focus:outline-none focus:ring-0 active:outline-none active:ring-0 ${
                 activeTab === 'draw'
-                  ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50 border-none'
+                  : 'text-gray-500 hover:text-gray-700 border-none'
               }`}
+              style={{ boxShadow: 'none' }}
             >
               <PenTool className="w-4 h-4 mx-auto mb-1" />
               Draw
             </button>
             <button
               onClick={() => setActiveTab('type')}
-              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors focus:outline-none focus:ring-0 active:outline-none active:ring-0 ${
                 activeTab === 'type'
-                  ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50 border-none'
+                  : 'text-gray-500 hover:text-gray-700 border-none'
               }`}
+              style={{ boxShadow: 'none' }}
             >
               <Type className="w-4 h-4 mx-auto mb-1" />
               Type
             </button>
             <button
               onClick={() => setActiveTab('upload')}
-              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors focus:outline-none focus:ring-0 active:outline-none active:ring-0 ${
                 activeTab === 'upload'
-                  ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50 border-none'
+                  : 'text-gray-500 hover:text-gray-700 border-none'
               }`}
+              style={{ boxShadow: 'none' }}
             >
               <Upload className="w-4 h-4 mx-auto mb-1" />
               Upload
