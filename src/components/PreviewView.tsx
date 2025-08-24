@@ -389,45 +389,6 @@ const PreviewView = () => {
               <PDFViewer onPageClick={() => {}} isPreviewMode={true} />
             </div>
           </div>
-          {/* Security Notice */}
-          <div className="flex flex-col gap-2">
-            <div className="bg-green-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-start space-x-3">
-                <div className="flex-shrink-0">
-                  <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">
-                    🔒
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-medium text-blue-900 mb-1">Secure Processing</h4>
-                </div>
-              </div>
-            </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-start space-x-3">
-                <div className="flex-shrink-0">
-                  <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">
-                    🚀
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-medium text-blue-900 mb-1">Quick Download</h4>
-                </div>
-              </div>
-            </div>
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-              <div className="flex items-start space-x-3">
-                <div className="flex-shrink-0">
-                  <div className="w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs">
-                    💡
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-medium text-purple-900 mb-1">Smart Fill Detection</h4>
-                </div>
-              </div>
-            </div>
-          </div>
         </motion.div>
       </div>
       {/* Mobile Bottom Bar */}
