@@ -10,31 +10,36 @@ import { useEffect } from 'react';
 function App() {
   const currentView = useSignFlowStore((state) => state.currentView);
 
-  useEffect(() => {  
-  const handlePopState = () => {  
-    const currentPath = window.location.pathname;  
-    const expectedPath = currentView === 'landing' ? '/' :   
-                        currentView === 'signing' ? '/signing' : '/preview';  
-      
-    if (currentPath !== expectedPath) {  
-      // Correct the URL to match current state  
-      window.history.replaceState({}, '', expectedPath);  
-    }
-  };  
-  
-  window.addEventListener('popstate', handlePopState);  
-  return () => window.removeEventListener('popstate', handlePopState);  
-}, [currentView]);
+  useEffect(() => {
+    // Listen for browser navigation (back/forward)
+    const handlePopState = () => {
+      const currentPath = window.location.pathname;
+      let newView: 'landing' | 'signing' | 'preview';
+      if (currentPath === '/') newView = 'landing';
+      else if (currentPath === '/signing') newView = 'signing';
+      else newView = 'preview';
+      useSignFlowStore.getState().setCurrentView(newView);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
-// On app load, ensure URL matches the current view  
-useEffect(() => {  
-  const expectedPath = currentView === 'landing' ? '/' :   
-                      currentView === 'signing' ? '/signing' : '/preview';  
-    
-  if (window.location.pathname !== expectedPath) {  
-    window.history.replaceState({}, '', expectedPath);  
-  }  
-}, []); // Run once on mount
+  // On app load, ensure URL matches the current view
+  useEffect(() => {
+    const expectedPath = currentView === 'landing' ? '/' :
+      currentView === 'signing' ? '/signing' : '/preview';
+    if (window.location.pathname !== expectedPath) {
+      window.history.replaceState({}, '', expectedPath);
+    }
+  }, [currentView]);
+  // Push new history entry when view changes (except on initial load)
+  useEffect(() => {
+    const expectedPath = currentView === 'landing' ? '/' :
+      currentView === 'signing' ? '/signing' : '/preview';
+    if (window.location.pathname !== expectedPath) {
+      window.history.pushState({}, '', expectedPath);
+    }
+  }, [currentView]);
 
   // Temporarily show test component
   const showTest = false; // Set to true to test PDF loading

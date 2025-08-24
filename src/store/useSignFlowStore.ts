@@ -111,15 +111,22 @@ const useSignFlowStore = create<SignFlowState>((set) => ({
 
   setCurrentView: (view: ViewState) => {
     set((state) => {
+      // Check for PDF existence before moving to signing or preview
+      if ((view === 'signing' || view === 'preview') && !state.pdfFile) {
+        const newState = { ...state, currentView: 'landing' };
+        saveStateToStorage({ ...newState, currentView: 'landing' as ViewState });
+        window.history.pushState({}, '', '/');
+        return { currentView: 'landing' as ViewState };
+      }
       const newState = { ...state, currentView: view };
-      saveStateToStorage(newState);
-      return { currentView: view };
+      saveStateToStorage({ ...newState, currentView: view as ViewState });
+      let url = '/';
+      if (view === 'signing') url = '/signing';
+      else if (view === 'preview') url = '/preview';
+      else if (view === 'landing') url = '/';
+      window.history.pushState({}, '', url);
+      return { currentView: view as ViewState };
     });
-    let url = '/';
-    if (view === 'signing') url = '/signing';
-    else if (view === 'preview') url = '/preview';
-    else if (view === 'landing') url = '/';
-    window.history.pushState({}, '', url);
   },
 
   setPdfFile: (file: File | null) => {
