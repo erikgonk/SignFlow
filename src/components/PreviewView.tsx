@@ -231,16 +231,30 @@ const PreviewView = () => {
       // Create download link
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
-      
-      const link = document.createElement('a');
-      link.href = url;
       const fileName = pdfFile?.name || pdfFileName || 'document.pdf';
-      link.download = `signed_${fileName}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
       
-      URL.revokeObjectURL(url);
+      // Safari workaround (only for Safari, not all iOS browsers)
+      const isSafari = /^((?!chrome|android|crios|fxios|edgios|brave).)*safari/i.test(navigator.userAgent);
+      if (isSafari) {
+        // Use hidden iframe for download
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = url;
+        document.body.appendChild(iframe);
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+          URL.revokeObjectURL(url);
+        }, 2000);
+      } else {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `signed_${fileName}`;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
       
       setDownloadComplete(true);
       setTimeout(() => setDownloadComplete(false), 3000);
@@ -283,7 +297,7 @@ const PreviewView = () => {
           <RotateCcw size={18} />
         </button>
         <div className="flex-1 flex justify-center">
-          <h1 className="text-xl font-bold select-none text-center" style={{ letterSpacing: '-0.02em' }}>
+          <h1 className="text-2xl md:text-4xl font-bold select-none text-center" style={{ letterSpacing: '-0.02em' }}>
             <span className="text-gray-900">Sign</span><span className="text-primary-600">Flow</span>
           </h1>
         </div>
@@ -304,7 +318,7 @@ const PreviewView = () => {
               <span>Back</span>
             </button>
             <div className="border-l border-gray-300 pl-4">
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900 select-none" style={{ letterSpacing: '-0.02em' }}>
+              <h1 className="text-2xl md:text-4xl font-bold text-gray-900 select-none" style={{ letterSpacing: '-0.02em' }}>
                 Sign<span className="text-primary-600">Flow</span>
               </h1>
             </div>

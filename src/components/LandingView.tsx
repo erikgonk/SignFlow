@@ -82,7 +82,7 @@ const LandingView = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto"
+            className="text-2xl md:text-4xl text-gray-600 mb-8 max-w-2xl mx-auto"
           >
             The fastest way to add your signature to PDF documents. 
             Upload, sign, and download in seconds - completely secure and private.

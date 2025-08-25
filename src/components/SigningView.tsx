@@ -112,7 +112,7 @@ const SigningView = () => {
               <span>Back</span>
             </button>
             <div className="border-l border-gray-300 pl-4">
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900 select-none" style={{ letterSpacing: '-0.02em' }}>
+              <h1 className="text-2xl md:text-4xl font-bold text-gray-900 select-none" style={{ letterSpacing: '-0.02em' }}>
                 Sign<span className="text-primary-600">Flow</span>
               </h1>
             </div>
@@ -136,7 +136,7 @@ const SigningView = () => {
 
       {/* Mobile Header */}
       <div className="md:hidden pt-4 pb-2 flex flex-col items-center">
-        <h1 className="text-xl font-bold select-none text-center" style={{ letterSpacing: '-0.02em' }}>
+        <h1 className="text-2xl md:text-4xl font-bold select-none text-center" style={{ letterSpacing: '-0.02em' }}>
           <span className="text-gray-900">Sign</span><span className="text-primary-600">Flow</span>
         </h1>
       </div>
