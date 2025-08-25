@@ -368,10 +368,10 @@ const PreviewView = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Document Ready for Download
+                    Document Ready
                   </h3>
                   <p className="text-gray-600">
-                    {signatures.length} signature{signatures.length !== 1 ? 's' : ''} applied to your document
+                    {signatures.length} signature{signatures.length !== 1 ? 's' : ''} applied
                   </p>
                 </div>
               </div>

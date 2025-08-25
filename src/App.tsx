@@ -14,11 +14,17 @@ function App() {
     // Listen for browser navigation (back/forward)
     const handlePopState = () => {
       const currentPath = window.location.pathname;
-      let newView: 'landing' | 'signing' | 'preview';
-      if (currentPath === '/') newView = 'landing';
-      else if (currentPath === '/signing') newView = 'signing';
-      else newView = 'preview';
-      useSignFlowStore.getState().setCurrentView(newView);
+      if (currentPath === '/' || currentPath === '/signing' || currentPath === '/preview') {
+        let newView: 'landing' | 'signing' | 'preview';
+        if (currentPath === '/') newView = 'landing';
+        else if (currentPath === '/signing') newView = 'signing';
+        else newView = 'preview';
+        useSignFlowStore.getState().setCurrentView(newView);
+      } else {
+        // Redirect to landing page for any unknown route
+        useSignFlowStore.getState().setCurrentView('landing');
+        window.history.replaceState({}, '', '/');
+      }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
@@ -26,9 +32,14 @@ function App() {
 
   // On app load, ensure URL matches the current view
   useEffect(() => {
+    // On app load and view change, redirect to landing if path is unknown
+    const validPaths = ['/', '/signing', '/preview'];
     const expectedPath = currentView === 'landing' ? '/' :
       currentView === 'signing' ? '/signing' : '/preview';
-    if (window.location.pathname !== expectedPath) {
+    if (!validPaths.includes(window.location.pathname)) {
+      window.history.replaceState({}, '', '/');
+      useSignFlowStore.getState().setCurrentView('landing');
+    } else if (window.location.pathname !== expectedPath) {
       window.history.replaceState({}, '', expectedPath);
     }
   }, [currentView]);
