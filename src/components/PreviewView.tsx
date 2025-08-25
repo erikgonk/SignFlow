@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Download, RotateCcw, CheckCircle } from 'lucide-react';
 import { PDFDocument } from 'pdf-lib';
+import { useTranslation } from 'react-i18next';
 import useSignFlowStore from '../store/useSignFlowStore';
 import PDFViewer from './PDFViewer';
-import { debugPDFGeneration } from '../utils/debugPDF';
+import debugPDFGeneration from '../utils/debugPDF';
 
 const formatFileSize = (size: number | null) => {
   if (size == null) return '';
@@ -18,6 +19,7 @@ const formatFileSize = (size: number | null) => {
 };
 
 const PreviewView = () => {
+  const { t } = useTranslation('previewView');
   const [isGenerating, setIsGenerating] = useState(false);
   const [downloadComplete, setDownloadComplete] = useState(false);
   
@@ -33,31 +35,29 @@ const PreviewView = () => {
   const handleBackToSigning = () => {
     setCurrentView('signing');
   };
-
   const handleStartOver = () => {
     reset();
   };
-
   const handleDownload = async () => {
     if (!pdfDataUrl) {
       console.error('No PDF data available for download');
-      alert('No PDF file available. Please upload a PDF first.');
+      alert(t('no_pdf_available'));
       return;
     }
       
     setIsGenerating(true);
     
     try {
-      debugPDFGeneration.log('Starting PDF generation process');
+      debugPDFGeneration.log(t('pdf_generation_start'));
       
       // Validate input data
       const pdfValidation = debugPDFGeneration.validatePDFData(pdfDataUrl, pdfFile);
       if (!pdfValidation.isValid) {
-        throw new Error(`PDF validation failed: ${pdfValidation.errors.join(', ')}`);
+        throw new Error(t('pdf_validation_failed', { errors: pdfValidation.errors.join(', ') }));
       }
       
       if (pdfValidation.warnings.length > 0) {
-        debugPDFGeneration.log('PDF validation warnings', pdfValidation.warnings);
+        debugPDFGeneration.log(t('pdf_validation_warnings'), pdfValidation.warnings);
       }
       
       debugPDFGeneration.log('Signatures to process', { count: signatures.length, signatures });
@@ -262,22 +262,12 @@ const PreviewView = () => {
       debugPDFGeneration.log('Download initiated successfully');
       
     } catch (error) {
-      debugPDFGeneration.error('PDF generation failed', error);
+      debugPDFGeneration.error(t('pdf_generation_failed', { error: error instanceof Error ? error.message : 'Unknown error' }), error);
       
-      let errorMessage = 'Failed to generate signed PDF. ';
+      let errorMessage = t('pdf_generation_failed', { error: '' });
       
       if (error instanceof Error) {
-        if (error.message.includes('Failed to fetch')) {
-          errorMessage += 'Could not load the original PDF file.';
-        } else if (error.message.includes('embed')) {
-          errorMessage += 'Could not embed signatures into the PDF.';
-        } else if (error.message.includes('validation')) {
-          errorMessage += 'Invalid data detected.';
-        } else {
-          errorMessage += `Error: ${error.message}`;
-        }
-      } else {
-        errorMessage += 'Please try again.';
+        errorMessage += ` ${error.message}`;
       }
       
       alert(errorMessage);
@@ -315,7 +305,7 @@ const PreviewView = () => {
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeft size={20} />
-              <span>Back</span>
+              <span>{t('back_to_signing')}</span>
             </button>
             <div className="border-l border-gray-300 pl-4">
               <h1 className="text-2xl md:text-4xl font-bold text-gray-900 select-none" style={{ letterSpacing: '-0.02em' }}>
@@ -329,7 +319,7 @@ const PreviewView = () => {
               className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               <RotateCcw size={16} />
-              <span>Start Over</span>
+              <span>{t('start_over')}</span>
             </button>
             <button
               onClick={handleDownload}
@@ -343,22 +333,22 @@ const PreviewView = () => {
                   ? 'bg-primary-600 text-white hover:bg-primary-700 shadow-sm'
                   : 'bg-gray-200 text-gray-500 cursor-not-allowed'
               }`}
-              title={signatures.length === 0 ? 'Add Signature to enable Download' : 'Download signed PDF'}
+              title={signatures.length === 0 ? t('download_hint') : t('download_signed_pdf')}
             >
               {downloadComplete ? (
                 <>
                   <CheckCircle size={16} />
-                  <span>Downloaded!</span>
+                  <span>{t('download_complete')}</span>
                 </>
               ) : isGenerating ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Generating...</span>
+                  <span>{t('generating_pdf')}</span>
                 </>
               ) : (
                 <>
                   <Download size={16} />
-                  <span>Download</span>
+                  <span>{t('download')}</span>
                 </>
               )}
             </button>
@@ -382,15 +372,15 @@ const PreviewView = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Document Ready
+                    {t('download_signed_pdf')}
                   </h3>
                   <p className="text-gray-600">
-                    {signatures.length} signature{signatures.length !== 1 ? 's' : ''} applied
+                    {signatures.length} {t('signatures_applied')}
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-sm text-gray-500 mb-1">File size</div>
+                <div className="text-sm text-gray-500 mb-1">{t('pdf_file_size')}</div>
                 <div className="font-medium text-gray-900">
                   {pdfFile && formatFileSize(pdfFile.size)}
                 </div>
@@ -409,16 +399,16 @@ const PreviewView = () => {
       <div className="fixed bottom-7 left-0 right-0 z-50 md:hidden px-6 flex items-center justify-between pointer-events-none">
         <button
           onClick={handleBackToSigning}
-          className="pointer-events-auto p-3 rounded-lg bg-primary-500 hover:bg-primary-00 backdrop-blur-md text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-0 focus:border-none focus:border-transparent"
-          title="Go Back"
+          className="pointer-events-auto p-3 rounded-lg bg-primary-500 hover:bg-primary-00 backdrop-blur-md text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-0 focus:border-none focus-border-transparent"
+          title={t('return_to_signing')}
         >
           <ArrowLeft size={20} />
         </button>
         <button
           onClick={handleDownload}
           disabled={isGenerating || signatures.length === 0}
-          className={`pointer-events-auto p-3 rounded-lg bg-primary-500 hover:bg-primary-00 backdrop-blur-md text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-0 focus:border-none focus:border-transparent ${signatures.length > 0 ? 'hover:bg-primary-700 hover:shadow-lg' : 'opacity-50 cursor-not-allowed'}`}
-          title={signatures.length === 0 ? 'Add Signature to enable Download' : 'Download signed PDF'}
+          className={`pointer-events-auto p-3 rounded-lg bg-primary-500 hover:bg-primary-00 backdrop-blur-md text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-0 focus:border-none focus-border-transparent ${signatures.length > 0 ? 'hover:bg-primary-700 hover:shadow-lg' : 'opacity-50 cursor-not-allowed'}`}
+          title={signatures.length === 0 ? t('download_hint') : t('download_signed_pdf')}
         >
           <Download size={20} />
         </button>

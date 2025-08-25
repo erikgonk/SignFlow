@@ -1,0 +1,13 @@
+{
+  "back": "Volver",
+  "preview_download": "Vista previa y Descarga",
+  "signflow": "Sign",
+  "instructions_place_signature": "Haz clic en el PDF para colocar tu firma",
+  "instructions_manage_signatures": "Gestiona tus firmas",
+  "instructions_add_signature": "Agrega tu firma al documento",
+  "desc_place_signature": "Haz clic en cualquier parte del documento para colocar tu firma preparada en esa ubicación.",
+  "desc_manage_signatures": "Haz clic en cualquier firma para seleccionarla. Arrastra para mover, usa los controles de tamaño en las esquinas, o haz clic en × para eliminar.",
+  "desc_add_signature": "Usa los botones de la barra de herramientas para crear tu firma, o haz clic directamente en el documento para abrir el popup de creación de firma.",
+  "go_back": "Volver",
+  "add_signature_to_enable_download": "Agrega una firma para habilitar la descarga"
+}

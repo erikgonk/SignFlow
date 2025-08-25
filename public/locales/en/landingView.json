@@ -1,0 +1,19 @@
+{
+  "app_title": "Sign",
+  "app_subtitle": "The fastest way to add your signature to PDF documents. Upload, sign, and download in seconds - completely secure and private.",
+  "upload_button": "Upload Your PDF",
+  "sample_button": "Try with Sample PDF",
+  "or": "or",
+  "upload_hint": "Upload your own PDF or use our sample document to test the signing process",
+  "sample-document": "sample-document.pdf",
+  "feature_upload_title": "Upload PDF",
+  "feature_upload_desc": "Simply upload your PDF document to get started",
+  "feature_sign_title": "Add Signature",
+  "feature_sign_desc": "Draw, type, or upload your signature with ease",
+  "feature_preview_title": "Preview Document",
+  "feature_preview_desc": "Review your signed document before downloading",
+  "feature_download_title": "Download",
+  "feature_download_desc": "Get your signed PDF instantly",
+  "trust_indicator": "🔒 Your documents are processed securely in your browser",
+  "privacy_indicator": "No uploads to servers • Complete privacy • Instant processing"
+}

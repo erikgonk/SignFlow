@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PenTool, Type, Upload, X, Check } from 'lucide-react';
 import SignatureCanvas from 'react-signature-canvas';
 import useSignFlowStore from '../store/useSignFlowStore';
+import { useTranslation } from 'react-i18next';
 
 interface SignatureCreationModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ const SignatureCreationModal = ({
   onClose, 
   clickPosition 
 }: SignatureCreationModalProps) => {
+  const { t } = useTranslation('signatureCreationModal');
   const {
     typedSignature,
     setTypedSignature,
@@ -98,12 +100,10 @@ const SignatureCreationModal = ({
 
   const handleSave = () => {
     let signatureData = '';
-    // Only reset draw validity if saving and not valid
     if (activeTab === 'draw' && !isSignatureValid) {
-      alert('Please draw your signature before saving.');
+      alert(t('alert_draw_before_save'));
       return;
     }
-
     switch (activeTab) {
       case 'draw':
         if (signatureCanvasRef.current) {
@@ -111,7 +111,7 @@ const SignatureCreationModal = ({
           const imageData = canvas.getContext('2d')?.getImageData(0, 0, canvas.width, canvas.height);
           const hasContent = imageData?.data.some((pixel, index) => index % 4 === 3 && pixel !== 0);
           if (!hasContent) {
-            alert('Please draw your signature before saving.');
+            alert(t('alert_draw_before_save'));
             return;
           }
           try {
@@ -126,14 +126,14 @@ const SignatureCreationModal = ({
             });
           } catch (error) {
             console.error('Error saving drawn signature:', error);
-            alert('Failed to save signature. Please try again.');
+            alert(t('alert_failed_save'));
             return;
           }
         }
         break;
       case 'type':
         if (!typedSignature.trim()) {
-          alert('Please enter your signature text.');
+          alert(t('alert_enter_text'));
           return;
         }
         try {
@@ -161,13 +161,12 @@ const SignatureCreationModal = ({
           }
         } catch (error) {
           console.error('Error saving typed signature:', error);
-          alert('Failed to create typed signature. Please try again.');
+          alert(t('alert_failed_typed'));
           return;
         }
         break;
       case 'upload':
-        // This will be handled by the file input change event
-        alert('Please select an image file first.');
+        alert(t('alert_select_image_first'));
         return;
     }
 
@@ -204,25 +203,20 @@ const SignatureCreationModal = ({
     if (!file) {
       return;
     }
-    
-    // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file (PNG, JPEG, etc.).');
+      alert(t('alert_select_image_type'));
       return;
     }
-    
-    // Validate file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
-      alert('Image file too large. Please select an image smaller than 5MB.');
+      alert(t('alert_image_too_large'));
       return;
     }
-    
     try {
       const reader = new FileReader();
       reader.onload = (e) => {
         const dataURL = e.target?.result as string;
         if (!dataURL || !dataURL.startsWith('data:image/')) {
-          alert('Invalid image file. Please try another image.');
+          alert(t('alert_invalid_image'));
           return;
         }
         if (clickPosition) {
@@ -244,12 +238,12 @@ const SignatureCreationModal = ({
         }
       };
       reader.onerror = () => {
-        alert('Failed to read the image file. Please try again.');
+        alert(t('alert_failed_read_image'));
       };
       reader.readAsDataURL(file);
     } catch (error) {
       console.error('Error handling file upload:', error);
-      alert('Failed to process the image file. Please try again.');
+      alert(t('alert_failed_process_image'));
     }
   };
 
@@ -281,10 +275,10 @@ const SignatureCreationModal = ({
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Create Signature</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{t('create_signature')}</h2>
               {clickPosition && (
                 <p className="text-sm text-gray-500 mt-1">
-                  For page {clickPosition.pageNumber}
+                  {t('for_page', { pageNumber: clickPosition.pageNumber })}
                 </p>
               )}
             </div>
@@ -308,7 +302,7 @@ const SignatureCreationModal = ({
               style={{ boxShadow: 'none' }}
             >
               <PenTool className="w-4 h-4 mx-auto mb-1" />
-              Draw
+              {t('draw')}
             </button>
             <button
               onClick={() => setActiveTab('type')}
@@ -320,7 +314,7 @@ const SignatureCreationModal = ({
               style={{ boxShadow: 'none' }}
             >
               <Type className="w-4 h-4 mx-auto mb-1" />
-              Type
+              {t('type')}
             </button>
             <button
               onClick={() => setActiveTab('upload')}
@@ -332,7 +326,7 @@ const SignatureCreationModal = ({
               style={{ boxShadow: 'none' }}
             >
               <Upload className="w-4 h-4 mx-auto mb-1" />
-              Upload
+              {t('upload')}
             </button>
           </div>
 
@@ -377,7 +371,7 @@ const SignatureCreationModal = ({
                   }}
                   className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  Clear
+                  {t('clear')}
                 </button>
                 {/* Recent signatures preview */}
                 {recentDrawnSignatures.map((sig, idx) => (
@@ -405,7 +399,7 @@ const SignatureCreationModal = ({
                 ))}
               </div>
               <p className="text-sm text-gray-500 self-center">
-                Draw your signature above
+                {t('draw_above')}
               </p>
             </div>
               </div>
@@ -415,20 +409,20 @@ const SignatureCreationModal = ({
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Enter your signature
+                    {t('enter_signature')}
                   </label>
                   <input
                     type="text"
                     value={typedSignature}
                     onChange={(e) => setTypedSignature(e.target.value)}
-                    placeholder="Your Name"
+                    placeholder={t('your_name')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     autoFocus
                   />
                 </div>
                 {typedSignature && (
                   <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                    <p className="text-sm text-gray-600 mb-2">Preview:</p>
+                    <p className="text-sm text-gray-600 mb-2">{t('preview')}</p>
                     <div 
                       className="text-2xl text-center py-4"
                       style={{ fontFamily: 'cursive' }}
@@ -447,8 +441,8 @@ const SignatureCreationModal = ({
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-2">Click to upload signature image</p>
-                  <p className="text-sm text-gray-500">PNG, JPEG up to 5MB</p>
+                  <p className="text-gray-600 mb-2">{t('click_to_upload')}</p>
+                  <p className="text-sm text-gray-500">{t('png_jpeg_hint')}</p>
                 </div>
                 <input
                   ref={fileInputRef}
@@ -467,7 +461,7 @@ const SignatureCreationModal = ({
               onClick={handleClose}
               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              Cancel
+              {t('cancel')}
             </button>
             {activeTab !== 'upload' && (
               <button
@@ -480,7 +474,7 @@ const SignatureCreationModal = ({
                 `}
               >
                 <Check className="w-4 h-4" />
-                Add Signature
+                {t('add_signature')}
               </button>
             )}
           </div>

@@ -1,0 +1,19 @@
+{
+  "app_title": "Sign",
+  "app_subtitle": "La forma más rápida de agregar tu firma a documentos PDF. Sube, firma y descarga en segundos - completamente seguro y privado.",
+  "upload_button": "Sube tu PDF",
+  "sample_button": "Probar con PDF de ejemplo",
+  "or": "o",
+  "upload_hint": "Sube tu propio PDF o usa nuestro documento de ejemplo para probar el proceso de firma",
+  "sample-document": "documento-de-ejemplo.pdf",
+  "feature_upload_title": "Subir PDF",
+  "feature_upload_desc": "Simplemente sube tu documento PDF para comenzar",
+  "feature_sign_title": "Agregar firma",
+  "feature_sign_desc": "Dibuja, escribe o sube tu firma fácilmente",
+  "feature_preview_title": "Previsualizar documento",
+  "feature_preview_desc": "Revisa tu documento firmado antes de descargarlo",
+  "feature_download_title": "Descargar",
+  "feature_download_desc": "Obtén tu PDF firmado al instante",
+  "trust_indicator": "🔒 Tus documentos se procesan de forma segura en tu navegador",
+  "privacy_indicator": "Sin subidas a servidores • Privacidad total • Procesamiento instantáneo"
+}

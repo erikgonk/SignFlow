@@ -1,0 +1,13 @@
+{
+  "back": "Back",
+  "preview_download": "Preview & Download",
+  "signflow": "Sign",
+  "instructions_place_signature": "Click on the PDF to place your signature",
+  "instructions_manage_signatures": "Manage your signatures",
+  "instructions_add_signature": "Add your signature to the document",
+  "desc_place_signature": "Click anywhere on the document to place your prepared signature at that location.",
+  "desc_manage_signatures": "Click on any signature to select it. Drag to move, use the resize handles on the corners, or click the × to delete.",
+  "desc_add_signature": "Use the toolbar buttons below to create your signature, or click directly on the document to open the signature creation popup.",
+  "go_back": "Go Back",
+  "add_signature_to_enable_download": "Add Signature to enable Download"
+}

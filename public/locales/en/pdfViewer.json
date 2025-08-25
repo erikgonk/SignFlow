@@ -1,0 +1,10 @@
+{
+  "no_pdf_loaded": "No PDF loaded",
+  "no_valid_pdf_data": "No valid PDF data available",
+  "loading_pdf": "Loading PDF...",
+  "failed_to_load_pdf": "Failed to load PDF file",
+  "corrupted_or_invalid": "The PDF file may be corrupted or invalid",
+  "refresh_page": "Refresh Page",
+  "page_of": "Page {{pageNumber}} of {{numPages}}",
+  "showing_pages_drag": "Showing {{numPages}} page{{numPages !== 1 ? 's' : ''}} • Drag signatures between pages"
+}

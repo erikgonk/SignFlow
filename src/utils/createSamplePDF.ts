@@ -1,4 +1,5 @@
 import { PDFDocument, rgb } from 'pdf-lib';
+import i18n from '../i18n';
 
 export const createSamplePDF = async (): Promise<Uint8Array> => {
   const pdfDoc = await PDFDocument.create();
@@ -6,21 +7,21 @@ export const createSamplePDF = async (): Promise<Uint8Array> => {
   
   const { height } = page.getSize();
   
-  page.drawText('Sample PDF for Testing', {
+  page.drawText(i18n.t('createSamplePDF:sample_pdf_title'), {
     x: 50,
     y: height - 100,
     size: 24,
     color: rgb(0, 0, 0),
   });
-  
-  page.drawText('This is a test PDF document for SignFlow.', {
+
+  page.drawText(i18n.t('createSamplePDF:sample_pdf_description'), {
     x: 50,
     y: height - 150,
     size: 14,
     color: rgb(0.5, 0.5, 0.5),
   });
-  
-  page.drawText('You can use this to test PDF loading and signing.', {
+
+  page.drawText(i18n.t('createSamplePDF:sample_pdf_author'), {
     x: 50,
     y: height - 180,
     size: 14,
@@ -38,7 +39,7 @@ export const downloadSamplePDF = async () => {
   
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'sample-document.pdf';
+  link.download = i18n.t('createSamplePDF:sample-document'); 
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

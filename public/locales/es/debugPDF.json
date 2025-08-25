@@ -1,0 +1,6 @@
+{
+  "debug_pdf_log": "Registro de depuración de PDF",
+  "validation_success": "Validación de PDF exitosa.",
+  "validation_failed": "La validación de PDF falló: {{errors}}",
+  "validation_warnings": "Advertencias de validación de PDF: {{warnings}}"
+}

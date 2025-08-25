@@ -1,0 +1,11 @@
+{
+  "draw": "Dibujar",
+  "type": "Escribir",
+  "upload": "Subir",
+  "draw_description": "Dibuja tu firma",
+  "type_description": "Escribe tu firma",
+  "upload_description": "Sube tu firma",
+  "alert_image_too_large": "El archivo de imagen es demasiado grande. Selecciona una imagen menor a 5MB.",
+  "alert_invalid_image": "Archivo de imagen inválido. Por favor, prueba con otra imagen.",
+  "alert_failed_read_image": "No se pudo leer el archivo de imagen. Por favor, inténtalo de nuevo."
+}

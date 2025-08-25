@@ -1,0 +1,19 @@
+{
+  "title": "PDF Display Error",
+  "description": "There was an error displaying the PDF document. This might be due to:",
+  "reasons": [
+    "Corrupted PDF file",
+    "Invalid signature data",
+    "Browser compatibility issues",
+    "Memory limitations"
+  ],
+  "try_again": "Try Again",
+  "refresh_page": "Refresh Page",
+  "technical_details": "Technical Details",
+  "display_error": "PDF Display Error",
+  "error_description": "There was an error displaying the PDF document. This might be due to:",
+  "corrupted_pdf": "Corrupted PDF file",
+  "invalid_signature": "Invalid signature data",
+  "browser_compat": "Browser compatibility issues",
+  "memory_limit": "Memory limitations"
+}

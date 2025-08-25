@@ -1,0 +1,19 @@
+{
+  "back_to_signing": "Back to Signing",
+  "start_over": "Start Over",
+  "download_signed_pdf": "Download Signed PDF",
+  "generating_pdf": "Generating PDF...",
+  "download_complete": "Download Complete!",
+  "download": "Download",
+  "pdf_file_size": "PDF file size:",
+  "signatures_applied": "Signatures applied:",
+  "no_pdf_available": "No PDF file available. Please upload a PDF first.",
+  "pdf_generation_start": "Starting PDF generation process",
+  "pdf_validation_failed": "PDF validation failed: {{errors}}",
+  "pdf_validation_warnings": "PDF validation warnings",
+  "pdf_generation_failed": "Failed to generate PDF: {{error}}",
+  "pdf_download_failed": "Failed to download PDF. Please try again.",
+  "pdf_download_success": "PDF generated and downloaded successfully.",
+  "return_to_signing": "Return to signing",
+  "restart_signing": "Restart signing process"
+}

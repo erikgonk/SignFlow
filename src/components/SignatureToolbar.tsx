@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion';
 import { PenTool, Type, Upload } from 'lucide-react';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import useSignFlowStore from '../store/useSignFlowStore';
 
 const SignatureToolbar = () => {
+  const { t } = useTranslation('signatureToolbar');
   const {
     setShowSignaturePopup,
     setActiveSignatureType,
@@ -25,17 +27,18 @@ const SignatureToolbar = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
+      alert(t('alert_invalid_image'));
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      alert('Image file too large. Please select an image smaller than 5MB.');
+      alert(t('alert_image_too_large'));
       return;
     }
     const reader = new FileReader();
     reader.onload = (ev) => {
       const dataURL = ev.target?.result as string;
       if (!dataURL || !dataURL.startsWith('data:image/')) {
-        alert('Invalid image file. Please try another image.');
+        alert(t('alert_invalid_image'));
         return;
       }
       // Default placement: center of first page
@@ -50,7 +53,7 @@ const SignatureToolbar = () => {
       });
     };
     reader.onerror = () => {
-      alert('Failed to read the image file. Please try again.');
+      alert(t('alert_failed_read_image'));
     };
     reader.readAsDataURL(file);
     // Reset input so same file can be selected again
@@ -60,21 +63,21 @@ const SignatureToolbar = () => {
   const toolbarButtons = [
     {
       id: 'draw',
-      label: 'Draw',
+      label: t('draw'),
       icon: PenTool,
-      description: 'Draw your signature',
+      description: t('draw_description'),
     },
     {
       id: 'type',
-      label: 'Type',
+      label: t('type'),
       icon: Type,
-      description: 'Type your signature',
+      description: t('type_description'),
     },
     {
       id: 'upload',
-      label: 'Upload',
+      label: t('upload'),
       icon: Upload,
-      description: 'Upload your signature',
+      description: t('upload_description'),
     },
   ] as const;
 

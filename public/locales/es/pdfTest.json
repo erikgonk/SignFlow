@@ -1,0 +1,12 @@
+{
+  "title": "Componente de prueba de PDF",
+  "download_sample": "Descargar PDF de ejemplo",
+  "download_hint": "Usa esto si no tienes un PDF para probar",
+  "file_input_label": "Elige un archivo PDF para probar:",
+  "loading_pdf": "Cargando PDF...",
+  "loading_page": "Cargando página...",
+  "error_prefix": "Error al cargar el PDF: ",
+  "download_sample_pdf": "Descargar PDF de ejemplo",
+  "no_pdf_hint": "Usa esto si no tienes un PDF para probar",
+  "error_load_pdf": "Error al cargar el PDF: {{message}}"
+}

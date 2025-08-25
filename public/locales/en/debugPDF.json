@@ -1,0 +1,6 @@
+{
+  "debug_pdf_log": "Debug PDF Log",
+  "validation_success": "PDF validation successful.",
+  "validation_failed": "PDF validation failed: {{errors}}",
+  "validation_warnings": "PDF validation warnings: {{warnings}}"
+}

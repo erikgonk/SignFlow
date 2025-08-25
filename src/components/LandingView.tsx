@@ -3,8 +3,10 @@ import { motion } from 'framer-motion';
 import { Upload, FileText, PenTool, Download, TestTube } from 'lucide-react';
 import useSignFlowStore from '../store/useSignFlowStore';
 import { createSamplePDF } from '../utils/createSamplePDF';
+import { useTranslation } from 'react-i18next';
 
 const LandingView = () => {
+  const { t } = useTranslation('landingView');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const setPdfFile = useSignFlowStore((state) => state.setPdfFile);
 
@@ -27,8 +29,8 @@ const LandingView = () => {
       
       // Create a File object from the PDF bytes
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const file = new File([blob], 'sample-document.pdf', { type: 'application/pdf' });
-      
+      const file = new File([blob], t('sample-document'), { type: 'application/pdf' });
+
       console.log('Sample PDF created, loading...');
       setPdfFile(file);
     } catch (error) {
@@ -40,23 +42,23 @@ const LandingView = () => {
   const features = [
     {
       icon: Upload,
-      title: 'Upload PDF',
-      description: 'Simply upload your PDF document to get started'
+      title: t('feature_upload_title'),
+      description: t('feature_upload_desc')
     },
     {
       icon: PenTool,
-      title: 'Add Signature',
-      description: 'Draw, type, or upload your signature with ease'
+      title: t('feature_sign_title'),
+      description: t('feature_sign_desc')
     },
     {
       icon: FileText,
-      title: 'Preview Document',
-      description: 'Review your signed document before downloading'
+      title: t('feature_preview_title'),
+      description: t('feature_preview_desc')
     },
     {
       icon: Download,
-      title: 'Download',
-      description: 'Get your signed PDF instantly'
+      title: t('feature_download_title'),
+      description: t('feature_download_desc')
     }
   ];
 
@@ -76,7 +78,7 @@ const LandingView = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-5xl md:text-6xl font-bold text-gray-900 mb-6"
           >
-            Sign<span className="text-primary-600">Flow</span>
+            {t('app_title', { defaultValue: 'Sign' })}<span className="text-primary-600">Flow</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -84,8 +86,7 @@ const LandingView = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-2xl md:text-4xl text-gray-600 mb-8 max-w-2xl mx-auto"
           >
-            The fastest way to add your signature to PDF documents. 
-            Upload, sign, and download in seconds - completely secure and private.
+            {t('app_subtitle')}
           </motion.p>
         </div>
 
@@ -102,17 +103,15 @@ const LandingView = () => {
               className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-4 px-8 rounded-xl text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-3"
             >
               <Upload size={24} />
-              Upload Your PDF
+              {t('upload_button')}
             </button>
-            
-            <span className="text-gray-400 text-sm">or</span>
-            
+            <span className="text-gray-400 text-sm">{t('or')}</span>
             <button
               onClick={handleCreateSamplePDF}
               className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-4 px-6 rounded-xl text-lg transition-all duration-300 border border-gray-200 hover:border-gray-300 flex items-center gap-3"
             >
               <TestTube size={20} />
-              Try with Sample PDF
+              {t('sample_button')}
             </button>
           </div>
           
@@ -124,7 +123,7 @@ const LandingView = () => {
             className="hidden"
           />
           <p className="text-gray-500 mt-4 text-sm">
-            Upload your own PDF or use our sample document to test the signing process
+            {t('upload_hint')}
           </p>
         </motion.div>
 
@@ -144,8 +143,8 @@ const LandingView = () => {
               className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300"
             >
               <feature.icon className="w-8 h-8 text-primary-600 mx-auto mb-4" />
-              <h3 className="font-semibold text-gray-900 mb-2">{feature.title}</h3>
-              <p className="text-gray-600 text-sm">{feature.description}</p>
+          <h3 className="font-semibold text-gray-900 mb-2">{feature.title}</h3>
+          <p className="text-gray-600 text-sm">{feature.description}</p>
             </motion.div>
           ))}
         </motion.div>
@@ -158,10 +157,10 @@ const LandingView = () => {
           className="text-center"
         >
           <p className="text-gray-500 text-sm mb-4">
-            🔒 Your documents are processed securely in your browser
+            {t('trust_indicator')}
           </p>
           <p className="text-gray-400 text-xs">
-            No uploads to servers • Complete privacy • Instant processing
+            {t('privacy_indicator')}
           </p>
         </motion.div>
       </motion.div>

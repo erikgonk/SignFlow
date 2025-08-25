@@ -1,0 +1,19 @@
+{
+  "title": "Error al mostrar el PDF",
+  "description": "Hubo un error al mostrar el documento PDF. Esto puede deberse a:",
+  "reasons": [
+    "Archivo PDF corrupto",
+    "Datos de firma inválidos",
+    "Problemas de compatibilidad del navegador",
+    "Limitaciones de memoria"
+  ],
+  "try_again": "Intentar de nuevo",
+  "refresh_page": "Actualizar página",
+  "technical_details": "Detalles técnicos",
+  "display_error": "Error al mostrar el PDF",
+  "error_description": "Hubo un error al mostrar el documento PDF. Esto puede deberse a:",
+  "corrupted_pdf": "Archivo PDF corrupto",
+  "invalid_signature": "Datos de firma inválidos",
+  "browser_compat": "Problemas de compatibilidad del navegador",
+  "memory_limit": "Limitaciones de memoria"
+}

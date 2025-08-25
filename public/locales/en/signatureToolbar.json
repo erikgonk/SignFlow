@@ -1,0 +1,11 @@
+{
+  "draw": "Draw",
+  "type": "Type",
+  "upload": "Upload",
+  "draw_description": "Draw your signature",
+  "type_description": "Type your signature",
+  "upload_description": "Upload your signature",
+  "alert_image_too_large": "Image file too large. Please select an image smaller than 5MB.",
+  "alert_invalid_image": "Invalid image file. Please try another image.",
+  "alert_failed_read_image": "Failed to read the image file. Please try again."
+}

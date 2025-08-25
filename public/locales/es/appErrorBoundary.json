@@ -1,0 +1,13 @@
+{
+  "error_title": "¡Vaya! Algo salió mal",
+  "error_message": "Lo sentimos, pero SignFlow encontró un error inesperado. Esto puede deberse a un problema de compatibilidad del navegador o datos corruptos.",
+  "try_again": "Intentar de nuevo",
+  "restart_app": "Reiniciar aplicación",
+  "persist_message": "Si el problema persiste, prueba:",
+  "refresh_page": "Actualizar la página",
+  "clear_cache": "Borrar la caché del navegador",
+  "use_browser": "Usar un navegador diferente",
+  "try_other_pdf": "Probar con otro archivo PDF",
+  "technical_details": "Detalles técnicos",
+  "error_label": "Error"
+}

@@ -1,0 +1,13 @@
+{
+  "error_title": "Oops! Something went wrong",
+  "error_message": "We're sorry, but SignFlow encountered an unexpected error. This might be due to a browser compatibility issue or corrupted data.",
+  "try_again": "Try Again",
+  "restart_app": "Restart Application",
+  "persist_message": "If this problem persists, try:",
+  "refresh_page": "Refreshing the page",
+  "clear_cache": "Clearing your browser cache",
+  "use_browser": "Using a different browser",
+  "try_other_pdf": "Trying with a different PDF file",
+  "technical_details": "Technical Details",
+  "error_label": "Error"
+}

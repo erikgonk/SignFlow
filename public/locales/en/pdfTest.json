@@ -1,0 +1,12 @@
+{
+  "title": "PDF Test Component",
+  "download_sample": "Download Sample PDF",
+  "download_hint": "Use this if you don't have a PDF to test with",
+  "file_input_label": "Choose a PDF file to test:",
+  "loading_pdf": "Loading PDF...",
+  "loading_page": "Loading page...",
+  "error_prefix": "Failed to load PDF: ",
+  "download_sample_pdf": "Download Sample PDF",
+  "no_pdf_hint": "Use this if you don't have a PDF to test with",
+  "error_load_pdf": "Failed to load PDF: {{message}}"
+}

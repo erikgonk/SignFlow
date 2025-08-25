@@ -1,0 +1,10 @@
+{
+  "no_pdf_loaded": "No se ha cargado ningún PDF",
+  "no_valid_pdf_data": "No hay datos PDF válidos disponibles",
+  "loading_pdf": "Cargando PDF...",
+  "failed_to_load_pdf": "Error al cargar el archivo PDF",
+  "corrupted_or_invalid": "El archivo PDF puede estar corrupto o ser inválido",
+  "refresh_page": "Actualizar página",
+  "page_of": "Página {{pageNumber}} de {{numPages}}",
+  "showing_pages_drag": "Mostrando {{numPages}} página{{numPages !== 1 ? 's' : ''}} • Arrastra las firmas entre páginas"
+}

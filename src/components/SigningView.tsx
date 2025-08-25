@@ -1,12 +1,14 @@
 import { motion } from 'framer-motion';
 import { ArrowLeft, Download } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import useSignFlowStore from '../store/useSignFlowStore';
 import PDFViewer from './PDFViewer';
 import SignatureToolbar from './SignatureToolbar';
 import SignatureCreationModal from './SignatureCreationModal';
 
 const SigningView = () => {
+  const { t } = useTranslation('signingView');
   const {
     signatures,
     showSignaturePopup,
@@ -109,11 +111,11 @@ const SigningView = () => {
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeft size={20} />
-              <span>Back</span>
+              <span>{t('back')}</span>
             </button>
             <div className="border-l border-gray-300 pl-4">
               <h1 className="text-2xl md:text-4xl font-bold text-gray-900 select-none" style={{ letterSpacing: '-0.02em' }}>
-                Sign<span className="text-primary-600">Flow</span>
+                {t('signflow')}<span className="text-primary-600">Flow</span>
               </h1>
             </div>
           </div>
@@ -128,7 +130,7 @@ const SigningView = () => {
               }`}
             >
               <Download size={16} />
-              <span>Preview & Download</span>
+              <span>{t('preview_download')}</span>
             </button>
           </div>
         </div>
@@ -137,7 +139,7 @@ const SigningView = () => {
       {/* Mobile Header */}
       <div className="md:hidden pt-4 pb-2 flex flex-col items-center">
         <h1 className="text-2xl md:text-4xl font-bold select-none text-center" style={{ letterSpacing: '-0.02em' }}>
-          <span className="text-gray-900">Sign</span><span className="text-primary-600">Flow</span>
+          <span className="text-gray-900">{t('signflow')}</span><span className="text-primary-600">Flow</span>
         </h1>
       </div>
 
@@ -163,18 +165,18 @@ const SigningView = () => {
                 <div>
                   <h3 className="font-medium text-gray-900 mb-1">
                     {isPlacingSignature
-                      ? 'Click on the PDF to place your signature'
+                      ? t('instructions_place_signature')
                       : signatures.length > 0
-                      ? 'Manage your signatures'
-                    : 'Add your signature to the document'
+                      ? t('instructions_manage_signatures')
+                      : t('instructions_add_signature')
                   }
                   </h3>
                   <p className="text-sm text-gray-600">
                     {isPlacingSignature
-                      ? 'Click anywhere on the document to place your prepared signature at that location.'
+                      ? t('desc_place_signature')
                       : signatures.length > 0
-                      ? 'Click on any signature to select it. Drag to move, use the resize handles on the corners, or click the × to delete.'
-                      : 'Use the toolbar buttons below to create your signature, or click directly on the document to open the signature creation popup.'
+                      ? t('desc_manage_signatures')
+                      : t('desc_add_signature')
                     }
                   </p>
                 </div>
@@ -195,7 +197,7 @@ const SigningView = () => {
         <button
           onClick={handleBackToLanding}
           className="pointer-events-auto p-3 rounded-lg bg-primary-500 hover:bg-primary-00 backdrop-blur-md text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-0 focus:border-none focus:border-transparent"
-          title="Go Back"
+          title={t('go_back')}
         >
           <ArrowLeft size={20} />
         </button>
@@ -207,8 +209,8 @@ const SigningView = () => {
           disabled={!canProceed}
           className={`pointer-events-auto p-3 rounded-lg bg-primary-500 hover:bg-primary-700 backdrop-blur-md text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center focus:outline-none focus:ring-0 focus:border-none focus:border-transparent ${canProceed ? 'hover:bg-primary-700 hover:shadow-lg' : 'opacity-50 cursor-not-allowed'}`}
           title={signatures.length === 0
-      ? 'Add Signature to enable Download'
-      : 'Preview & Download'}
+      ? t('add_signature_to_enable_download')
+      : t('preview_download')}
         >
           {/* Reverse style: visually matches back button, icon points right */}
           <div className="flex items-center justify-center rotate-180">

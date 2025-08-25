@@ -1,12 +1,16 @@
-export const debugPDFGeneration = {
+import i18n from '../i18n';
+
+const debugPDFGeneration = {
   log: (message: string, data?: any) => {
     const timestamp = new Date().toISOString();
-    console.log(`[PDF Debug ${timestamp}] ${message}`, data);
+    const logMsg = i18n.t('debugPDF:debug_pdf_log') + ` [${timestamp}] ${message}`;
+    console.log(logMsg, data);
   },
   
   error: (message: string, error?: any) => {
     const timestamp = new Date().toISOString();
-    console.error(`[PDF Error ${timestamp}] ${message}`, error);
+    const errorMsg = i18n.t('debugPDF:validation_failed', { errors: message }) + ` [${timestamp}]`;
+    console.error(errorMsg, error);
   },
   
   validateSignatureData: (signature: any) => {
@@ -15,29 +19,29 @@ export const debugPDFGeneration = {
       errors: [] as string[],
       warnings: [] as string[]
     };
-    
+
     if (!signature) {
       validationResult.isValid = false;
-      validationResult.errors.push('Signature is null or undefined');
+      validationResult.errors.push(i18n.t('debugPDF:validation_failed', { errors: 'Signature is null or undefined' }));
       return validationResult;
     }
-    
+
     if (!signature.id) {
-      validationResult.errors.push('Signature missing ID');
+      validationResult.errors.push(i18n.t('debugPDF:validation_failed', { errors: 'Signature missing ID' }));
       validationResult.isValid = false;
     }
-    
+
     if (!signature.data || typeof signature.data !== 'string') {
-      validationResult.errors.push('Signature data is missing or not a string');
+      validationResult.errors.push(i18n.t('debugPDF:validation_failed', { errors: 'Signature data is missing or not a string' }));
       validationResult.isValid = false;
     } else {
       if (!signature.data.startsWith('data:image/')) {
-        validationResult.errors.push('Signature data is not a valid data URL');
+        validationResult.errors.push(i18n.t('debugPDF:validation_failed', { errors: 'Signature data is not a valid data URL' }));
         validationResult.isValid = false;
       }
-      
+
       if (signature.data.length < 100) {
-        validationResult.warnings.push('Signature data seems very short');
+        validationResult.warnings.push(i18n.t('debugPDF:validation_warnings', { warnings: 'Signature data seems very short' }));
       }
     }
     
@@ -138,3 +142,5 @@ export const debugPDFGeneration = {
     }
   }
 };
+
+export default debugPDFGeneration;

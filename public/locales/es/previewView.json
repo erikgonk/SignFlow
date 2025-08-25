@@ -1,0 +1,19 @@
+{
+  "back_to_signing": "Volver a la firma",
+  "start_over": "Empezar de nuevo",
+  "download_signed_pdf": "Descargar PDF firmado",
+  "generating_pdf": "Generando PDF...",
+  "download_complete": "¡Descarga completa!",
+  "download": "Descargar",
+  "pdf_file_size": "Tamaño del archivo PDF:",
+  "signatures_applied": "Firmas aplicadas:",
+  "no_pdf_available": "No hay archivo PDF disponible. Por favor, suba un PDF primero.",
+  "pdf_generation_start": "Iniciando el proceso de generación de PDF",
+  "pdf_validation_failed": "La validación del PDF falló: {{errors}}",
+  "pdf_validation_warnings": "Advertencias de validación de PDF",
+  "pdf_generation_failed": "Error al generar el PDF: {{error}}",
+  "pdf_download_failed": "Error al descargar el PDF. Por favor, inténtelo de nuevo.",
+  "pdf_download_success": "PDF generado y descargado exitosamente.",
+  "return_to_signing": "Volver a la firma",
+  "restart_signing": "Reiniciar proceso de firma"
+}
