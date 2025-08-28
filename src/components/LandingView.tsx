@@ -84,7 +84,7 @@ const LandingView = () => {
           aria-label={currentLang === 'en' ? 'Cambiar a Español' : 'Switch to English'}
         >
           <img
-            src={currentLang === 'en' ? '/public/flags/en.png' : '/public/flags/es.png'}
+            src={currentLang === 'en' ? 'https://upload.wikimedia.org/wikipedia/commons/4/42/Flag_of_the_United_Kingdom.png' : 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg'}
             alt={currentLang === 'en' ? 'English' : 'Español'}
             className="w-6 h-5"
           />
@@ -99,8 +99,11 @@ const LandingView = () => {
           aria-label={currentLang === 'en' ? 'Cambiar a Español' : 'Switch to English'}
         >
           <img
+            src={currentLang === 'en'
+              ? 'https://upload.wikimedia.org/wikipedia/commons/4/42/Flag_of_the_United_Kingdom.png'
+              : 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg'}
             alt={currentLang === 'en' ? 'English' : 'Español'}
-            className="w-7 h-7"
+            className="w-6 h-5"
           />
         </button>
       </div>
