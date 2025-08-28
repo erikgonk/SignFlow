@@ -1,6 +1,9 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
+// Restore language preference from localStorage if available
+const savedLang = typeof window !== 'undefined' ? localStorage.getItem('language') : null;
+
 import appErrorBoundary_en from '../public/locales/en/appErrorBoundary.json';
 import appErrorBoundary_es from '../public/locales/es/appErrorBoundary.json';
 import createSamplePDF_en from '../public/locales/en/createSamplePDF.json';
@@ -55,7 +58,7 @@ i18n
         signingView: signingView_es,
       },
     },
-    lng: 'en',
+    lng: savedLang || 'en',
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false,

@@ -1,6 +1,6 @@
 {
-  "back_to_signing": "Back to Signing",
-  "start_over": "Start Over",
+  "back_to_signing": "Back",
+  "start_over": "New PDF",
   "download_signed_pdf": "Download Signed PDF",
   "generating_pdf": "Generating PDF...",
   "download_complete": "Download Complete!",
@@ -14,6 +14,6 @@
   "pdf_generation_failed": "Failed to generate PDF: {{error}}",
   "pdf_download_failed": "Failed to download PDF. Please try again.",
   "pdf_download_success": "PDF generated and downloaded successfully.",
-  "return_to_signing": "Return to signing",
+  "return_to_signing": "Back",
   "restart_signing": "Restart signing process"
 }

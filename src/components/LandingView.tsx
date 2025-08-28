@@ -1,8 +1,9 @@
 import { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Upload, FileText, PenTool, Download, TestTube } from 'lucide-react';
+import { Upload, FileText, PenTool, Download} from 'lucide-react';
+// import { Upload, FileText, PenTool, Download, TestTube } from 'lucide-react';
 import useSignFlowStore from '../store/useSignFlowStore';
-import { createSamplePDF } from '../utils/createSamplePDF';
+// import { createSamplePDF } from '../utils/createSamplePDF';
 import { useTranslation } from 'react-i18next';
 
 const LandingView = () => {
@@ -22,22 +23,22 @@ const LandingView = () => {
     fileInputRef.current?.click();
   };
 
-  const handleCreateSamplePDF = async () => {
-    try {
-      console.log('Creating sample PDF...');
-      const pdfBytes = await createSamplePDF();
-      
-      // Create a File object from the PDF bytes
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const file = new File([blob], t('sample-document'), { type: 'application/pdf' });
+  // const handleCreateSamplePDF = async () => {
+  //   try {
+  //     console.log('Creating sample PDF...');
+  //     const pdfBytes = await createSamplePDF();
+  //     // Use a translation key for the sample PDF filename, fallback to English if missing
+  //     const sampleFileName = t('sample_document', { defaultValue: 'sample-document.pdf' });
+  //     const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+  //     const file = new File([blob], sampleFileName, { type: 'application/pdf' });
 
-      console.log('Sample PDF created, loading...');
-      setPdfFile(file);
-    } catch (error) {
-      console.error('Error creating sample PDF:', error);
-      alert('Failed to create sample PDF. Please try again.');
-    }
-  };
+  //     console.log('Sample PDF created, loading...');
+  //     setPdfFile(file);
+  //   } catch (error) {
+  //     console.error('Error creating sample PDF:', error);
+  //     alert('Failed to create sample PDF. Please try again.');
+  //   }
+  // };
 
   const features = [
     {
@@ -62,8 +63,48 @@ const LandingView = () => {
     }
   ];
 
+  const { i18n } = useTranslation();
+  const currentLang = i18n.language;
+  const toggleLanguage = () => {
+    const newLang = currentLang === 'en' ? 'es' : 'en';
+    i18n.changeLanguage(newLang);
+    // Save language preference to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('language', newLang);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
+      {/* Language Switcher - Desktop */}
+      <div className="hidden md:block absolute top-6 right-8 z-50">
+        <button
+          onClick={toggleLanguage}
+          className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg shadow transition-all duration-200 flex items-center gap-2"
+          aria-label={currentLang === 'en' ? 'Cambiar a Español' : 'Switch to English'}
+        >
+          <img
+            src={currentLang === 'en' ? '/public/flags/en.png' : '/public/flags/es.png'}
+            alt={currentLang === 'en' ? 'English' : 'Español'}
+            className="w-6 h-5"
+          />
+          {/* <span className="ml-2">{currentLang === 'en' ? 'EN' : 'ES'}</span> */}
+        </button>
+      </div>
+      {/* Language Switcher - Mobile */}
+      <div className="md:hidden fixed bottom-6 right-6 z-50">
+        <button
+          onClick={toggleLanguage}
+          className="bg-gray-200 hover:bg-gray-300 text-gray-700 p-3 rounded-full shadow transition-all duration-200 flex items-center justify-center"
+          aria-label={currentLang === 'en' ? 'Cambiar a Español' : 'Switch to English'}
+        >
+          <img
+            alt={currentLang === 'en' ? 'English' : 'Español'}
+            className="w-7 h-7"
+          />
+        </button>
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -84,7 +125,7 @@ const LandingView = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-2xl md:text-4xl text-gray-600 mb-8 max-w-2xl mx-auto"
+            className="text-2xl md:text-2xl text-gray-500 mb-8 max-w-2xl mx-auto"
           >
             {t('app_subtitle')}
           </motion.p>
@@ -102,17 +143,17 @@ const LandingView = () => {
               onClick={handleUploadClick}
               className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-4 px-8 rounded-xl text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-3"
             >
-              <Upload size={24} />
+              <Upload size={35} />
               {t('upload_button')}
             </button>
-            <span className="text-gray-400 text-sm">{t('or')}</span>
-            <button
+            {/* <span className="text-gray-400 text-sm">{t('or')}</span> */}
+            {/* <button
               onClick={handleCreateSamplePDF}
               className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-4 px-6 rounded-xl text-lg transition-all duration-300 border border-gray-200 hover:border-gray-300 flex items-center gap-3"
             >
               <TestTube size={20} />
               {t('sample_button')}
-            </button>
+            </button> */}
           </div>
           
           <input
@@ -122,9 +163,9 @@ const LandingView = () => {
             onChange={handleFileSelect}
             className="hidden"
           />
-          <p className="text-gray-500 mt-4 text-sm">
+          {/* <p className="text-gray-500 mt-4 text-sm">
             {t('upload_hint')}
-          </p>
+          </p> */}
         </motion.div>
 
         {/* Features Grid */}
