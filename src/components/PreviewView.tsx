@@ -234,18 +234,18 @@ const PreviewView = () => {
       const fileName = pdfFile?.name || pdfFileName || 'document.pdf';
       
       // Safari workaround (only for Safari, not all iOS browsers)
-      const isSafari = /^((?!chrome|android|crios|fxios|edgios|brave).)*safari/i.test(navigator.userAgent);
-      if (isSafari) {
-        // Use hidden iframe for download
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = url;
-        document.body.appendChild(iframe);
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-          URL.revokeObjectURL(url);
-        }, 2000);
-      } else {
+      // const isSafari = /^((?!chrome|android|crios|fxios|edgios|brave).)*safari/i.test(navigator.userAgent);
+      // if (isSafari) {
+      //   // Use hidden iframe for download
+      //   const iframe = document.createElement('iframe');
+      //   iframe.style.display = 'none';
+      //   iframe.src = url;
+      //   document.body.appendChild(iframe);
+      //   setTimeout(() => {
+      //     document.body.removeChild(iframe);
+      //     URL.revokeObjectURL(url);
+      //   }, 2000);
+      // } else {
         const link = document.createElement('a');
         link.href = url;
         link.download = `signed_${fileName}`;
@@ -254,7 +254,7 @@ const PreviewView = () => {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-      }
+      // }
       
       setDownloadComplete(true);
       setTimeout(() => setDownloadComplete(false), 3000);

@@ -1,0 +1,33 @@
+.env
+node_modules/
+dist/
+build/
+.env.local
+.env.*.local
+.DS_Store
+*.log
+coverage/
+.vscode/
+*.sqlite
+*.db
+*.pem
+*.key
+*.crt
+
+# Ignore OS-specific files
+Thumbs.db
+
+# Ignore IDE settings
+.idea/
+*.iml
+
+# Ignore test output
+*.test-results
+
+# Ignore environment files
+.envrc
+
+# Ignore lock files (optional)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
